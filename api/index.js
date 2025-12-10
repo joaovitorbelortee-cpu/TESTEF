@@ -1,21 +1,8 @@
-// Vercel Serverless Function - Wrapper para o Express
+// Netlify Serverless Function - Wrapper para o Express
 import express from 'express';
 import cors from 'cors';
 
-// Tenta usar Supabase, se não estiver configurado, usa JSON
-let initDatabase;
-try {
-  if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
-    const supabaseDb = await import('../server/database-supabase.js');
-    initDatabase = supabaseDb.initDatabase;
-  } else {
-    throw new Error('Supabase not configured');
-  }
-} catch (e) {
-  const jsonDb = await import('../server/database.js');
-  initDatabase = jsonDb.initDatabase;
-}
-
+// Import routes directly (they don't use top-level await)
 import accountsRoutes from '../server/routes/accounts.js';
 import clientsRoutes from '../server/routes/clients.js';
 import salesRoutes from '../server/routes/sales.js';
@@ -29,8 +16,42 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Inicializar banco de dados
-initDatabase();
+// Database initialization flag
+let dbInitialized = false;
+
+// Initialize database lazily on first request
+const ensureDbInitialized = async (req, res, next) => {
+  if (!dbInitialized) {
+    try {
+      // Try Supabase first
+      if (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL) {
+        const { initDatabase } = await import('../server/database-supabase.js');
+        await initDatabase();
+        console.log('✅ Supabase database initialized');
+      } else {
+        const { initDatabase } = await import('../server/database.js');
+        await initDatabase();
+        console.log('✅ JSON database initialized');
+      }
+      dbInitialized = true;
+    } catch (error) {
+      console.error('❌ Database initialization error:', error);
+      // Try fallback to JSON
+      try {
+        const { initDatabase } = await import('../server/database.js');
+        await initDatabase();
+        dbInitialized = true;
+        console.log('✅ Fallback to JSON database');
+      } catch (e) {
+        console.error('❌ Complete database failure:', e);
+      }
+    }
+  }
+  next();
+};
+
+// Apply database initialization middleware
+app.use(ensureDbInitialized);
 
 // Rotas
 app.use('/api/accounts', accountsRoutes);
@@ -40,12 +61,14 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/portal', portalRoutes);
 app.use('/api/webhook', webhookRoutes);
 
-// Rota de teste
+// Health check route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'GamePass Manager API rodando!' });
+  res.json({
+    status: 'ok',
+    message: 'GamePass Manager API rodando!',
+    dbInitialized
+  });
 });
 
-// Exportar para Vercel Serverless
+// Exportar para Netlify/Vercel Serverless
 export default app;
-
-
