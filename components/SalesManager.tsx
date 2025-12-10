@@ -744,7 +744,7 @@ export default function SalesManager() {
                 <h3 className="modal-title">
                   {newSale ? '✅ Venda Registrada!' : 'Nova Venda'}
                 </h3>
-                <button className="modal-close" onClick={() => { setShowModal(false); resetForm(); }}>
+                <button className="modal-close" onClick={() => { setShowModal(false); resetForm(); }} title="Fechar Modal">
                   <X size={20} />
                 </button>
               </div>
@@ -800,7 +800,7 @@ export default function SalesManager() {
                     </div>
                   </div>
 
-                  <div className="modal-footer" style={{ padding: 0, border: 'none', marginTop: 12 }}>
+                  <div className="modal-footer footer-no-border">
                     <button className="btn btn-secondary" onClick={() => { setShowModal(false); resetForm(); }}>
                       Fechar
                     </button>
@@ -819,6 +819,8 @@ export default function SalesManager() {
                         className="form-select"
                         value={formData.client_id}
                         onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
+                        aria-label="Selecione o Cliente"
+                        title="Selecione o Cliente"
                       >
                         <option value="">-- Novo cliente --</option>
                         {clients.map(client => (
@@ -864,6 +866,8 @@ export default function SalesManager() {
                         value={formData.account_id}
                         onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
                         required
+                        aria-label="Selecione a Conta"
+                        title="Selecione a Conta"
                       >
                         <option value="">Selecione uma conta disponível</option>
                         {accounts.map(account => (
@@ -873,7 +877,7 @@ export default function SalesManager() {
                         ))}
                       </select>
                       {accounts.length === 0 && (
-                        <p style={{ color: '#f59e0b', fontSize: 12, marginTop: 8 }}>
+                        <p className="warning-text">
                           ⚠️ Nenhuma conta disponível. Adicione contas no estoque primeiro.
                         </p>
                       )}
@@ -898,6 +902,8 @@ export default function SalesManager() {
                         <select
                           className="form-select"
                           value={formData.payment_method}
+                          aria-label="Forma de Pagamento"
+                          title="Forma de Pagamento"
                           onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
                         >
                           <option value="pix">PIX</option>

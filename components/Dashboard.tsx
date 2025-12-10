@@ -40,6 +40,46 @@ const styles = `
     font-size: 14px;
     margin-top: 4px;
   }
+
+  .error-message {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #fff;
+  }
+  
+  .error-actions {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .error-hint {
+    font-size: 12px;
+    color: #6a6a7a;
+  }
+  
+  .error-code {
+    background: rgba(42, 42, 58, 0.8);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #10b981;
+    font-family: monospace;
+  }
+  
+  .retry-btn {
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    color: #10b981;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+  }
   
   .stats-grid {
     display: grid;
@@ -487,34 +527,17 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               <div className="empty-state-icon">
                 <AlertTriangle size={32} color="#ef4444" />
               </div>
-              <p style={{ marginBottom: 12, fontSize: 14, color: '#fff' }}>{error}</p>
-              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
-                <p style={{ fontSize: 12, color: '#6a6a7a' }}>
+              <p className="error-message">{error}</p>
+              <div className="error-actions">
+                <p className="error-hint">
                   Para desenvolvimento local, execute:
                 </p>
-                <code style={{
-                  background: 'rgba(42, 42, 58, 0.8)',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  fontSize: 12,
-                  color: '#10b981',
-                  fontFamily: 'monospace'
-                }}>
+                <code className="error-code">
                   npm run dev:server
                 </code>
                 <button
                   onClick={loadDashboard}
-                  style={{
-                    marginTop: 12,
-                    padding: '10px 20px',
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    borderRadius: '8px',
-                    color: '#10b981',
-                    cursor: 'pointer',
-                    fontSize: 13,
-                    fontWeight: 500
-                  }}
+                  className="retry-btn"
                 >
                   Tentar Novamente
                 </button>

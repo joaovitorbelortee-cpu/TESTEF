@@ -379,26 +379,99 @@ const styles = `
     transform: translateY(-2px);
   }
   
-  @media (max-width: 768px) {
-    .alert-card {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    
-    .alert-actions {
-      width: 100%;
-      margin-top: 12px;
-    }
-    
-    .alert-btn {
-      flex: 1;
-      justify-content: center;
-    }
-    
     .alert-item {
       flex-direction: column;
       align-items: flex-start;
     }
+  }
+
+  /* Refactored Styles */
+  .tabs-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 12px;
+  }
+  
+  .tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #6a6a7a;
+    cursor: pointer;
+    font-weight: 400;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .tab-btn.active-warning {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+    font-weight: 600;
+  }
+  
+  .tab-btn.active-danger {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+    font-weight: 600;
+  }
+
+  .alert-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .alert-detail-box {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+  }
+
+  .detail-label {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .detail-value {
+    color: #fff;
+    font-size: 14px;
+    font-family: monospace;
+  }
+
+  /* Custom Colors */
+  .box-neon {
+    background: rgba(57, 255, 20, 0.1);
+    border-color: rgba(57, 255, 20, 0.3);
+  }
+  .text-neon { color: #39ff14; }
+
+  .box-whatsapp {
+    background: rgba(37, 211, 102, 0.1);
+    border-color: rgba(37, 211, 102, 0.3);
+  }
+  .text-whatsapp { color: #25d366; }
+
+  .box-danger {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  .text-danger { color: #ef4444; }
+
+  .meta-info {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #6a6a7a;
+    margin-top: 4px;
   }
 `;
 
@@ -552,60 +625,24 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
         </div>
 
         {/* Tabs de Navegação */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px' }}>
+        <div className="tabs-container">
           <button
             onClick={() => setActiveTab('expiring')}
-            style={{
-              padding: '10px 20px',
-              background: activeTab === 'expiring' ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
-              border: activeTab === 'expiring' ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid transparent',
-              borderRadius: '8px',
-              color: activeTab === 'expiring' ? '#f59e0b' : '#6a6a7a',
-              cursor: 'pointer',
-              fontWeight: activeTab === 'expiring' ? 600 : 400,
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className={`tab-btn ${activeTab === 'expiring' ? 'active-warning' : ''}`}
           >
             <Clock size={16} />
             Vencendo ({expiringAccounts.length})
           </button>
           <button
             onClick={() => setActiveTab('pending-renewal')}
-            style={{
-              padding: '10px 20px',
-              background: activeTab === 'pending-renewal' ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
-              border: activeTab === 'pending-renewal' ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid transparent',
-              borderRadius: '8px',
-              color: activeTab === 'pending-renewal' ? '#f59e0b' : '#6a6a7a',
-              cursor: 'pointer',
-              fontWeight: activeTab === 'pending-renewal' ? 600 : 400,
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className={`tab-btn ${activeTab === 'pending-renewal' ? 'active-warning' : ''}`}
           >
             <AlertTriangle size={16} />
             Precisa Renovar ({pendingRenewalAccounts.length})
           </button>
           <button
             onClick={() => setActiveTab('expired')}
-            style={{
-              padding: '10px 20px',
-              background: activeTab === 'expired' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-              border: activeTab === 'expired' ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
-              borderRadius: '8px',
-              color: activeTab === 'expired' ? '#ef4444' : '#6a6a7a',
-              cursor: 'pointer',
-              fontWeight: activeTab === 'expired' ? 600 : 400,
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className={`tab-btn ${activeTab === 'expired' ? 'active-danger' : ''}`}
           >
             <X size={16} />
             Vencidos ({expiredAccounts.length})
@@ -722,34 +759,24 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
                           </span>
                         </div>
 
-                        <div className="alert-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                          <div style={{
-                            background: 'rgba(57, 255, 20, 0.1)',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(57, 255, 20, 0.3)'
-                          }}>
-                            <div style={{ fontWeight: 600, color: '#39ff14', fontSize: '13px', marginBottom: '4px' }}>
+                        <div className="alert-details-container">
+                          <div className="alert-detail-box box-neon">
+                            <div className="detail-label text-neon">
                               🎮 CONTA GAMEPASS
                             </div>
-                            <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace' }}>
+                            <div className="detail-value">
                               {account.email}
                             </div>
                           </div>
-                          <div style={{
-                            background: 'rgba(37, 211, 102, 0.1)',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(37, 211, 102, 0.3)'
-                          }}>
-                            <div style={{ fontWeight: 600, color: '#25d366', fontSize: '13px', marginBottom: '4px' }}>
+                          <div className="alert-detail-box box-whatsapp">
+                            <div className="detail-label text-whatsapp">
                               📱 CONTATO WHATSAPP
                             </div>
-                            <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace' }}>
+                            <div className="detail-value">
                               {account.client_whatsapp || 'Não informado'}
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#6a6a7a', marginTop: '4px' }}>
+                          <div className="meta-info">
                             <span>📅 Venceu: {new Date(account.expiry_date).toLocaleDateString('pt-BR')}</span>
                             <span>💰 R$ {account.sale_price?.toFixed(2) || '0.00'}</span>
                           </div>

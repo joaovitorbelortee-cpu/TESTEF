@@ -1,0 +1,25 @@
+/* Global Helper Classes */
+.warning-text {
+  color: #f59e0b;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.footer-no-border {
+  padding: 0 !important;
+  border: none !important;
+  margin-top: 12px !important;
+}
+
+/* Common Accessibility Helpers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
