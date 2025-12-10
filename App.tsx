@@ -432,18 +432,23 @@ function AdminApp() {
 
         {/* Mobile Header */}
         <div className="mobile-header">
-          <button className="menu-btn" onClick={() => setMobileMenuOpen(true)}>
+          <button
+            className="menu-btn"
+            onClick={() => setMobileMenuOpen(true)}
+            title="Abrir menu"
+            aria-label="Abrir menu"
+          >
             <Menu size={24} />
           </button>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '12px', fontWeight: 600, color: '#fff', textTransform: 'uppercase', letterSpacing: '1.5px', textAlign: 'center' }}>
+          <div className="flex-col items-center gap-4">
+            <div className="brand-text">
               ASSINALIVEBR
             </div>
-            <span className="logo-text" style={{ fontSize: '16px' }}>
+            <span className="logo-text text-lg">
               Game<span>Pass</span>
             </span>
           </div>
-          <div style={{ width: 40 }} />
+          <div className="spacer-40" />
         </div>
 
         {/* Overlay */}
@@ -460,9 +465,11 @@ function AdminApp() {
               Game<span>Pass</span>
             </div>
             <button
-              className="menu-btn"
+              className="menu-btn absolute-top-right"
               onClick={() => setMobileMenuOpen(false)}
               style={{ position: 'absolute', top: 0, right: 0, display: mobileMenuOpen ? 'block' : 'none' }}
+              title="Fechar menu"
+              aria-label="Fechar menu"
             >
               <X size={20} />
             </button>
