@@ -491,7 +491,10 @@ export default function AccountsManager() {
   const loadAccounts = async () => {
     try {
       if (!supabase) {
-        throw new Error('Supabase não configurado. Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY');
+        const errorMsg = 'Supabase não configurado. Configure as variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no Netlify (Site settings → Environment variables).';
+        console.error('❌', errorMsg);
+        alert(errorMsg);
+        return;
       }
 
       // Buscar contas diretamente do Supabase
@@ -500,7 +503,14 @@ export default function AccountsManager() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (accountsError) throw accountsError;
+      if (accountsError) {
+        console.error('❌ Erro do Supabase:', accountsError);
+        // Verificar se é erro de tabela não encontrada
+        if (accountsError.message?.includes('relation') || accountsError.message?.includes('does not exist')) {
+          throw new Error('Tabelas não encontradas no Supabase. Execute o SQL do arquivo supabase-schema.sql no SQL Editor do Supabase.');
+        }
+        throw accountsError;
+      }
 
       // Buscar vendas relacionadas
       const { data: salesData } = await supabase
@@ -537,9 +547,22 @@ export default function AccountsManager() {
       });
 
       setAccounts(accountsWithDetails);
-    } catch (error) {
-      console.error('Erro ao carregar contas:', error);
-      alert('Erro ao carregar contas. Verifique a configuração do Supabase.');
+    } catch (error: any) {
+      console.error('❌ Erro ao carregar contas:', error);
+      
+      let errorMessage = 'Erro ao carregar contas.';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.code === 'PGRST116') {
+        errorMessage = 'Nenhuma conta encontrada. Adicione contas primeiro.';
+      } else if (error.code === '42501' || error.message?.includes('permission')) {
+        errorMessage = 'Erro de permissão no Supabase. Verifique as políticas RLS.';
+      } else if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        errorMessage = 'Tabelas não encontradas. Execute o SQL do arquivo supabase-schema.sql no Supabase.';
+      }
+      
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

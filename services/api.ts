@@ -16,6 +16,15 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
       },
     });
     
+    // Verificar se a resposta é HTML (erro comum quando API não está configurada)
+    const contentType = response.headers.get('content-type');
+    if (contentType && !contentType.includes('application/json')) {
+      const text = await response.text();
+      if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+        throw new Error(`A API retornou HTML ao invés de JSON. Verifique se VITE_API_URL está configurado corretamente no Netlify. URL atual: ${url}`);
+      }
+    }
+    
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: `HTTP ${response.status}: ${response.statusText}` }));
       console.error('❌ API Error:', error);
@@ -29,6 +38,11 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
     // Melhorar mensagem de erro para "Failed to fetch"
     if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
       throw new Error('Failed to fetch - Verifique se o servidor está rodando e acessível');
+    }
+    
+    // Detectar erro de JSON inválido (HTML retornado)
+    if (error.message?.includes('Unexpected token') || error.message?.includes('JSON')) {
+      throw new Error('A API retornou HTML ao invés de JSON. Configure VITE_API_URL no Netlify apontando para o backend no Vercel.');
     }
     
     throw error;

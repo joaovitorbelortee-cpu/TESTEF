@@ -418,8 +418,10 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       // Mensagem de erro mais específica
       let errorMessage = 'Erro ao carregar dashboard';
       
-      if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
-        errorMessage = 'Erro ao conectar com o servidor. Verifique se o backend está rodando.';
+      if (err.message?.includes('Unexpected token') || err.message?.includes('JSON') || err.message?.includes('HTML')) {
+        errorMessage = 'A API retornou HTML ao invés de JSON. Configure VITE_API_URL no Netlify apontando para o backend no Vercel.';
+      } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+        errorMessage = 'Erro ao conectar com o servidor. Verifique se o backend está rodando no Vercel.';
       } else if (err.message?.includes('404')) {
         errorMessage = 'Endpoint não encontrado. Verifique a URL da API.';
       } else if (err.message) {

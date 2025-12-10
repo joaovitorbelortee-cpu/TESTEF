@@ -23,8 +23,12 @@ const getApiBaseUrl = () => {
 
 export const API_BASE_URL = getApiBaseUrl();
 
-// Log para debug (apenas em desenvolvimento)
-if (import.meta.env.DEV && typeof window !== 'undefined') {
+// Log para debug (sempre para verificar em produção)
+if (typeof window !== 'undefined') {
   console.log('🔧 API Base URL:', API_BASE_URL);
+  console.log('🔧 VITE_API_URL configurado:', import.meta.env.VITE_API_URL ? 'Sim' : 'Não');
+  if (!import.meta.env.VITE_API_URL && !import.meta.env.DEV) {
+    console.warn('⚠️ VITE_API_URL não configurado no Netlify. Configure apontando para o backend no Vercel.');
+  }
 }
 
