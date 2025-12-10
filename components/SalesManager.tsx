@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  Trash2,
   X,
   ShoppingCart,
   Copy,
@@ -280,7 +280,7 @@ const styles = `
     background: rgba(239, 68, 68, 0.2);
   }
   
-  .modal-overlay {
+  .sales-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -290,11 +290,11 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999;
     padding: 20px;
   }
   
-  .modal {
+  .sales-modal {
     background: #16161f;
     border: 1px solid rgba(42, 42, 58, 0.5);
     border-radius: 16px;
@@ -302,6 +302,8 @@ const styles = `
     max-width: 550px;
     max-height: 90vh;
     overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   }
   
   .modal-header {
@@ -481,7 +483,7 @@ export default function SalesManager() {
   const [showModal, setShowModal] = useState(false);
   const [newSale, setNewSale] = useState<Sale | null>(null);
   const [copied, setCopied] = useState('');
-  
+
   const [formData, setFormData] = useState({
     client_id: '',
     client_name: '',
@@ -508,21 +510,21 @@ export default function SalesManager() {
         accountsAPI.available() as Promise<Account[]>,
         clientsAPI.list() as Promise<Client[]>
       ]);
-      
+
       setSales(salesData);
       setAccounts(accountsData);
       setClients(clientsData);
-      
+
       // Calcular stats
       const now = new Date();
       const today = now.toISOString().split('T')[0];
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      
+
       const todaySales = salesData.filter(s => s.created_at.startsWith(today));
       const weekSales = salesData.filter(s => new Date(s.created_at) >= weekAgo);
       const monthSales = salesData.filter(s => new Date(s.created_at) >= monthAgo);
-      
+
       setStats({
         today: {
           count: todaySales.length,
@@ -559,7 +561,7 @@ export default function SalesManager() {
           client_whatsapp: formData.client_whatsapp
         })
       };
-      
+
       const result = await salesAPI.create(saleData) as Sale;
       setNewSale(result);
       loadData();
@@ -627,7 +629,7 @@ export default function SalesManager() {
             <h1 className="manager-title">Vendas</h1>
             <p className="manager-subtitle">Registre e acompanhe suas vendas</p>
           </div>
-          
+
           <div className="header-actions">
             <div className="search-box">
               <Search size={18} color="#6a6a7a" />
@@ -719,8 +721,8 @@ export default function SalesManager() {
                     <td className="amount-cell profit">+{formatCurrency(sale.profit)}</td>
                     <td>{formatDate(sale.created_at)}</td>
                     <td>
-                      <button 
-                        className="action-btn" 
+                      <button
+                        className="action-btn"
                         onClick={() => handleDelete(sale.id)}
                         title="Estornar venda"
                       >
@@ -736,8 +738,8 @@ export default function SalesManager() {
 
         {/* Modal */}
         {showModal && (
-          <div className="modal-overlay" onClick={() => { setShowModal(false); resetForm(); }}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="sales-modal-overlay" onClick={() => { setShowModal(false); resetForm(); }}>
+            <div className="sales-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h3 className="modal-title">
                   {newSale ? '✅ Venda Registrada!' : 'Nova Venda'}
@@ -746,7 +748,7 @@ export default function SalesManager() {
                   <X size={20} />
                 </button>
               </div>
-              
+
               {newSale ? (
                 <div className="modal-body">
                   <div className="sale-result">
@@ -754,12 +756,12 @@ export default function SalesManager() {
                       <Check size={18} />
                       Dados para enviar ao cliente:
                     </div>
-                    
+
                     <div className="sale-result-item">
                       <span className="sale-result-label">Email:</span>
                       <div className="copy-row">
                         <span className="sale-result-value">{newSale.account_email}</span>
-                        <button 
+                        <button
                           className="copy-btn"
                           onClick={() => copyToClipboard(newSale.account_email || '', 'email')}
                         >
@@ -768,12 +770,12 @@ export default function SalesManager() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="sale-result-item">
                       <span className="sale-result-label">Senha:</span>
                       <div className="copy-row">
                         <span className="sale-result-value">{newSale.account_password}</span>
-                        <button 
+                        <button
                           className="copy-btn"
                           onClick={() => copyToClipboard(newSale.account_password || '', 'password')}
                         >
@@ -782,14 +784,14 @@ export default function SalesManager() {
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="sale-result-item">
                       <span className="sale-result-label">Validade:</span>
                       <span className="sale-result-value">
                         {new Date(newSale.account_expiry || '').toLocaleDateString('pt-BR')}
                       </span>
                     </div>
-                    
+
                     <div className="sale-result-item">
                       <span className="sale-result-label">Lucro:</span>
                       <span className="sale-result-value" style={{ color: '#10b981' }}>
@@ -797,7 +799,7 @@ export default function SalesManager() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="modal-footer" style={{ padding: 0, border: 'none', marginTop: 12 }}>
                     <button className="btn btn-secondary" onClick={() => { setShowModal(false); resetForm(); }}>
                       Fechar
@@ -826,7 +828,7 @@ export default function SalesManager() {
                         ))}
                       </select>
                     </div>
-                    
+
                     {!formData.client_id && (
                       <div className="form-row">
                         <div className="form-group">
@@ -840,7 +842,7 @@ export default function SalesManager() {
                             required={!formData.client_id}
                           />
                         </div>
-                        
+
                         <div className="form-group">
                           <label className="form-label">WhatsApp</label>
                           <input
@@ -854,7 +856,7 @@ export default function SalesManager() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="form-group">
                       <label className="form-label">Conta GamePass *</label>
                       <select
@@ -876,7 +878,7 @@ export default function SalesManager() {
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="form-row">
                       <div className="form-group">
                         <label className="form-label">Valor da Venda (R$)</label>
@@ -890,7 +892,7 @@ export default function SalesManager() {
                           required
                         />
                       </div>
-                      
+
                       <div className="form-group">
                         <label className="form-label">Forma de Pagamento</label>
                         <select
@@ -906,7 +908,7 @@ export default function SalesManager() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="modal-footer">
                     <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
                       Cancelar

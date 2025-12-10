@@ -1,13 +1,5 @@
 import express from 'express';
-// Importar db dinamicamente (Supabase ou JSON)
-let db;
-try {
-  const supabaseDb = await import('../database-supabase.js');
-  db = supabaseDb.db;
-} catch (e) {
-  const jsonDb = await import('../database.js');
-  db = jsonDb.db;
-}
+import { db } from '../database.js';
 
 const router = express.Router();
 
