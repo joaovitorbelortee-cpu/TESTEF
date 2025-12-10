@@ -25,6 +25,12 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
     return response.json();
   } catch (error: any) {
     console.error('❌ Fetch Error:', error);
+    
+    // Melhorar mensagem de erro para "Failed to fetch"
+    if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+      throw new Error('Failed to fetch - Verifique se o servidor está rodando e acessível');
+    }
+    
     throw error;
   }
 }

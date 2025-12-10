@@ -1,7 +1,21 @@
 // Vercel Serverless Function - Wrapper para o Express
 import express from 'express';
 import cors from 'cors';
-import { initDatabase } from '../server/database.js';
+
+// Tenta usar Supabase, se não estiver configurado, usa JSON
+let initDatabase;
+try {
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+    const supabaseDb = await import('../server/database-supabase.js');
+    initDatabase = supabaseDb.initDatabase;
+  } else {
+    throw new Error('Supabase not configured');
+  }
+} catch (e) {
+  const jsonDb = await import('../server/database.js');
+  initDatabase = jsonDb.initDatabase;
+}
+
 import accountsRoutes from '../server/routes/accounts.js';
 import clientsRoutes from '../server/routes/clients.js';
 import salesRoutes from '../server/routes/sales.js';

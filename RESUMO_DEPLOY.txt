@@ -1,0 +1,80 @@
+═══════════════════════════════════════════════════════════════
+  🚀 DEPLOY COMPLETO - PASSO A PASSO
+═══════════════════════════════════════════════════════════════
+
+SITUAÇÃO ATUAL:
+✅ Frontend no Netlify (funcionando)
+❌ Backend não está rodando (erro 404)
+❌ Banco de dados não configurado
+
+═══════════════════════════════════════════════════════════════
+PASSO 1: CRIAR BANCO DE DADOS (Supabase)
+═══════════════════════════════════════════════════════════════
+
+1. Acesse: https://supabase.com
+2. New Project → Nome: gamepass-manager
+3. Aguarde criação (2-3 min)
+4. Settings → API
+5. Copie:
+   - Project URL → SUPABASE_URL
+   - anon public key → SUPABASE_ANON_KEY
+6. SQL Editor → New Query
+7. Abra arquivo: supabase-schema.sql
+8. Copie TODO e cole no SQL Editor
+9. Clique Run ✅
+
+═══════════════════════════════════════════════════════════════
+PASSO 2: DEPLOY DO BACKEND (Vercel)
+═══════════════════════════════════════════════════════════════
+
+1. Acesse: https://vercel.com
+2. Login com GitHub
+3. Add New → Project
+4. Selecione repositório: gamepass-manager
+5. Configure:
+   - Root Directory: / (deixe vazio)
+   - Framework: Other
+   - Build Command: (deixe vazio)
+   - Output Directory: (deixe vazio)
+6. Environment Variables → Adicione:
+   SUPABASE_URL=https://seu-projeto.supabase.co
+   SUPABASE_ANON_KEY=sua-chave-anon
+7. Deploy
+8. Aguarde (2-3 min)
+9. COPIE A URL: https://seu-projeto.vercel.app ⭐
+
+═══════════════════════════════════════════════════════════════
+PASSO 3: CONECTAR FRONTEND AO BACKEND (Netlify)
+═══════════════════════════════════════════════════════════════
+
+1. No Netlify → Seu site
+2. Site settings → Environment variables
+3. Add variable:
+   Nome: VITE_API_URL
+   Valor: https://seu-backend.vercel.app/api
+   (Substitua pela URL do seu backend!)
+4. Deploys → Trigger deploy → Clear cache
+5. Aguarde deploy
+
+═══════════════════════════════════════════════════════════════
+TESTAR
+═══════════════════════════════════════════════════════════════
+
+Teste 1 - Backend:
+https://seu-backend.vercel.app/api/health
+Deve retornar: {"status":"ok",...}
+
+Teste 2 - Frontend:
+Acesse seu site no Netlify
+Dashboard deve carregar! ✅
+
+═══════════════════════════════════════════════════════════════
+URLS FINAIS
+═══════════════════════════════════════════════════════════════
+
+Frontend: https://seu-site.netlify.app
+Backend:  https://seu-backend.vercel.app
+Banco:    Supabase (interno)
+
+═══════════════════════════════════════════════════════════════
+

@@ -1,0 +1,149 @@
+# 🔑 Configurar Chaves do Supabase
+
+## ✅ Suas Chaves Configuradas
+
+**URL do Projeto:**
+```
+https://cpzxslaufhomqxksyrwt.supabase.co
+```
+
+**Anon Key (para Frontend e Backend):**
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk
+```
+
+**Publishable Key (Alternativa para Frontend - pode usar no lugar da Anon Key):**
+```
+sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+```
+
+**Service Role Key (APENAS Backend - NUNCA no frontend!):**
+```
+sb_secret_48MaezSonAxYplSHLJ7DZg_bz2XT0E0
+```
+
+---
+
+## 🚨 IMPORTANTE: Segurança
+
+### ⚠️ Service Role Key
+- **NUNCA** use no frontend
+- **NUNCA** commite no Git
+- **APENAS** no backend (Vercel/Railway)
+- Tem acesso total ao banco (bypassa RLS)
+
+### ✅ Anon Key e Publishable Key
+- **Pode** usar no frontend (ambas são equivalentes)
+- **Pode** usar no backend
+- Respeita Row Level Security (RLS)
+- São seguras para expor publicamente
+- **Recomendação**: Use a **Publishable Key** no frontend (mais simples)
+
+---
+
+## 📋 Configuração por Ambiente
+
+### 1️⃣ Desenvolvimento Local
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+# Backend
+SUPABASE_URL=https://cpzxslaufhomqxksyrwt.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk
+
+# Frontend (com prefixo VITE_)
+# Use a Publishable Key no frontend (mais simples)
+VITE_SUPABASE_URL=https://cpzxslaufhomqxksyrwt.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+```
+
+---
+
+### 2️⃣ Netlify (Frontend)
+
+1. Acesse: https://app.netlify.com
+2. Vá em seu site → **Site settings** → **Environment variables**
+3. Adicione:
+
+```
+VITE_SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co
+VITE_SUPABASE_ANON_KEY = sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+```
+
+**Nota:** Você pode usar a Publishable Key (mais simples) ou a Anon Key (JWT). Ambas funcionam no frontend.
+
+4. **Deploys** → **Trigger deploy** → **Clear cache and deploy site**
+
+---
+
+### 3️⃣ Vercel (Backend)
+
+1. Acesse: https://vercel.com
+2. Vá em seu projeto → **Settings** → **Environment Variables**
+3. Adicione:
+
+```
+SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co
+SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk
+```
+
+**Opcional (para operações administrativas):**
+```
+SUPABASE_SERVICE_ROLE_KEY = sb_secret_48MaezSonAxYplSHLJ7DZg_bz2XT0E0
+```
+
+4. Faça novo deploy
+
+---
+
+## 🧪 Testar Conexão
+
+### Teste Local
+
+1. Inicie o servidor:
+```bash
+npm run dev:server
+```
+
+2. Você deve ver no console:
+```
+✅ Banco de dados Supabase conectado!
+🔗 URL: https://cpzxslaufhomqxksyrwt.supabase.co
+```
+
+### Teste Frontend
+
+1. Inicie o frontend:
+```bash
+npm run dev
+```
+
+2. Abra o Console do navegador (F12)
+3. Não deve aparecer erro de "Supabase não configurado"
+
+---
+
+## ✅ Checklist
+
+- [ ] Arquivo `.env` criado localmente
+- [ ] Variáveis configuradas no Netlify (Frontend)
+- [ ] Variáveis configuradas no Vercel (Backend)
+- [ ] Tabelas criadas no Supabase (execute `supabase-schema.sql`)
+- [ ] Teste local funcionando
+- [ ] Deploy feito no Netlify
+- [ ] Deploy feito no Vercel
+
+---
+
+## 🔒 Segurança Final
+
+✅ **NUNCA** commite o arquivo `.env`  
+✅ **NUNCA** use Service Role Key no frontend  
+✅ **SEMPRE** use Anon Key no frontend  
+✅ O arquivo `.env` já está no `.gitignore`  
+
+---
+
+**Pronto! Suas chaves estão configuradas! 🎉**
+

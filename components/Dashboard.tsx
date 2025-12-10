@@ -407,12 +407,26 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       setLoading(true);
       setError('');
       console.log('🔄 Carregando dashboard...');
+      console.log('🔗 API URL:', import.meta.env.VITE_API_URL || 'http://localhost:3001/api');
+      
       const result = await dashboardAPI.get() as DashboardData;
       console.log('✅ Dashboard carregado:', result);
       setData(result);
     } catch (err: any) {
       console.error('❌ Erro ao carregar dashboard:', err);
-      setError(`Erro ao carregar dashboard: ${err.message || 'Verifique se o servidor está rodando na porta 3001'}`);
+      
+      // Mensagem de erro mais específica
+      let errorMessage = 'Erro ao carregar dashboard';
+      
+      if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+        errorMessage = 'Erro ao conectar com o servidor. Verifique se o backend está rodando.';
+      } else if (err.message?.includes('404')) {
+        errorMessage = 'Endpoint não encontrado. Verifique a URL da API.';
+      } else if (err.message) {
+        errorMessage = `Erro: ${err.message}`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -471,10 +485,38 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               <div className="empty-state-icon">
                 <AlertTriangle size={32} color="#ef4444" />
               </div>
-              <p>{error}</p>
-              <p style={{ marginTop: 8, fontSize: 12 }}>
-                Execute: npm run dev:server
-              </p>
+              <p style={{ marginBottom: 12, fontSize: 14, color: '#fff' }}>{error}</p>
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+                <p style={{ fontSize: 12, color: '#6a6a7a' }}>
+                  Para desenvolvimento local, execute:
+                </p>
+                <code style={{ 
+                  background: 'rgba(42, 42, 58, 0.8)', 
+                  padding: '8px 16px', 
+                  borderRadius: '8px',
+                  fontSize: 12,
+                  color: '#10b981',
+                  fontFamily: 'monospace'
+                }}>
+                  npm run dev:server
+                </code>
+                <button
+                  onClick={loadDashboard}
+                  style={{
+                    marginTop: 12,
+                    padding: '10px 20px',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '8px',
+                    color: '#10b981',
+                    cursor: 'pointer',
+                    fontSize: 13,
+                    fontWeight: 500
+                  }}
+                >
+                  Tentar Novamente
+                </button>
+              </div>
             </div>
           </div>
         </div>

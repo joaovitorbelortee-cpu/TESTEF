@@ -12,7 +12,7 @@ import {
   Check,
   MessageCircle
 } from 'lucide-react';
-import { accountsAPI } from '../services/api';
+import { supabase } from '../lib/supabaseClient';
 import type { Account } from '../types';
 
 const styles = `
@@ -490,10 +490,56 @@ export default function AccountsManager() {
 
   const loadAccounts = async () => {
     try {
-      const data = await accountsAPI.list() as Account[];
-      setAccounts(data);
+      if (!supabase) {
+        throw new Error('Supabase não configurado. Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY');
+      }
+
+      // Buscar contas diretamente do Supabase
+      const { data: accountsData, error: accountsError } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (accountsError) throw accountsError;
+
+      // Buscar vendas relacionadas
+      const { data: salesData } = await supabase
+        .from('sales')
+        .select('id, account_id, sale_price, created_at, client_id');
+
+      // Buscar clientes se houver vendas
+      let clientsData: any[] = [];
+      if (salesData && salesData.length > 0) {
+        const clientIds = [...new Set(salesData.map((s: any) => s.client_id).filter(Boolean))];
+        if (clientIds.length > 0) {
+          const { data } = await supabase
+            .from('clients')
+            .select('id, name, email, whatsapp')
+            .in('id', clientIds);
+          clientsData = data || [];
+        }
+      }
+
+      // Combinar dados de contas com vendas e clientes
+      const accountsWithDetails: Account[] = (accountsData || []).map((account: any) => {
+        const sale = salesData?.find((s: any) => s.account_id === account.id);
+        const client = sale ? clientsData.find((c: any) => c.id === sale.client_id) : null;
+
+        return {
+          ...account,
+          client_id: client?.id,
+          client_name: client?.name,
+          client_email: client?.email,
+          client_whatsapp: client?.whatsapp,
+          sale_date: sale?.created_at,
+          sale_price: sale?.sale_price,
+        };
+      });
+
+      setAccounts(accountsWithDetails);
     } catch (error) {
       console.error('Erro ao carregar contas:', error);
+      alert('Erro ao carregar contas. Verifique a configuração do Supabase.');
     } finally {
       setLoading(false);
     }
@@ -502,26 +548,52 @@ export default function AccountsManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editingAccount) {
-        await accountsAPI.update(editingAccount.id, {
-          ...formData,
-          cost: parseFloat(formData.cost)
-        });
-      } else {
-        await accountsAPI.create({
-          ...formData,
-          cost: parseFloat(formData.cost)
-        });
+      if (!supabase) {
+        throw new Error('Supabase não configurado');
       }
+
+      const accountData = {
+        email: formData.email,
+        password: formData.password,
+        purchase_date: formData.purchase_date,
+        expiry_date: formData.expiry_date,
+        cost: parseFloat(formData.cost),
+        notes: formData.notes || '',
+        status: 'available' as const,
+      };
+
+      if (editingAccount) {
+        // Atualizar conta existente
+        const { error } = await supabase
+          .from('accounts')
+          .update(accountData)
+          .eq('id', editingAccount.id);
+
+        if (error) throw error;
+      } else {
+        // Criar nova conta
+        const { error } = await supabase
+          .from('accounts')
+          .insert([accountData]);
+
+        if (error) throw error;
+      }
+
       setShowModal(false);
       resetForm();
       loadAccounts();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar conta:', error);
+      alert(error.message || 'Erro ao salvar conta');
     }
   };
 
   const handleDelete = async (id: number, account: Account) => {
+    if (!supabase) {
+      alert('Supabase não configurado');
+      return;
+    }
+
     const isSold = isSoldAccount(account.status);
     const message = isSold 
       ? `⚠️ ATENÇÃO: Esta conta está VENDIDA!\n\nAo excluir:\n• A venda será estornada automaticamente\n• A conta será removida permanentemente\n• O cliente perderá acesso\n\nTem certeza que deseja continuar?`
@@ -531,27 +603,39 @@ export default function AccountsManager() {
       try {
         // Se for conta vendida, primeiro estornar a venda
         if (isSold) {
-          // Buscar a venda vinculada
-          const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-          const sales = await fetch(`${API_URL}/sales`).then(r => r.json());
-          const sale = sales.find((s: any) => s.account_id === id);
-          
-          if (sale) {
-            // Estornar a venda (isso vai voltar a conta para disponível)
-            const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-            await fetch(`${API_URL}/sales/${sale.id}`, { method: 'DELETE' });
+          // Buscar a venda vinculada diretamente do Supabase
+          const { data: sales, error: salesError } = await supabase
+            .from('sales')
+            .select('id')
+            .eq('account_id', id)
+            .single();
+
+          if (salesError && salesError.code !== 'PGRST116') {
+            throw salesError;
+          }
+
+          if (sales) {
+            // Deletar a venda (isso vai voltar a conta para disponível devido ao CASCADE)
+            const { error: deleteSaleError } = await supabase
+              .from('sales')
+              .delete()
+              .eq('id', sales.id);
+
+            if (deleteSaleError) throw deleteSaleError;
           }
         }
         
-        // Agora deletar a conta (já não tem mais venda vinculada)
-        const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-        if (isSold) {
-          await fetch(`${API_URL}/accounts/${id}?force=true`, { method: 'DELETE' });
-        } else {
-          await accountsAPI.delete(id);
-        }
+        // Deletar a conta diretamente do Supabase
+        const { error: deleteError } = await supabase
+          .from('accounts')
+          .delete()
+          .eq('id', id);
+
+        if (deleteError) throw deleteError;
+
         loadAccounts();
       } catch (error: any) {
+        console.error('Erro ao excluir conta:', error);
         alert(error.message || 'Erro ao excluir conta');
       }
     }
