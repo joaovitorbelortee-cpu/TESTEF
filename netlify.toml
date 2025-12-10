@@ -10,6 +10,11 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
+  included_files = ["server/**"]
+
+[functions.api]
+  external_node_modules = ["express"]
 
 # Redirecionar chamadas de API para a Function
 [[redirects]]
