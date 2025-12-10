@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Aether Command Center",
+  "description": "A futuristic voice-controlled command center using Gemini Live API to orchestrate code generation and image creation.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
