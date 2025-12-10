@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Edit2, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
   X,
   Users,
   MessageCircle,
@@ -285,7 +285,7 @@ const styles = `
     background: rgba(239, 68, 68, 0.2);
   }
   
-  .modal-overlay {
+  .client-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -295,11 +295,11 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999;
     padding: 20px;
   }
   
-  .modal {
+  .client-modal {
     background: #16161f;
     border: 1px solid rgba(42, 42, 58, 0.5);
     border-radius: 16px;
@@ -307,6 +307,8 @@ const styles = `
     max-width: 450px;
     max-height: 90vh;
     overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   }
   
   .modal-header {
@@ -420,7 +422,7 @@ export default function ClientsManager() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     whatsapp: '',
@@ -446,7 +448,7 @@ export default function ClientsManager() {
   const exportClients = () => {
     // Filtrar apenas clientes com dados válidos
     const clientsToExport = clients.filter(c => c.whatsapp || c.email);
-    
+
     if (clientsToExport.length === 0) {
       alert('Nenhum cliente com dados para exportar');
       return;
@@ -455,10 +457,10 @@ export default function ClientsManager() {
     // Formato CSV para Meta Ads
     // Meta Ads precisa de: email, phone (formato internacional), first_name, last_name
     const headers = ['email', 'phone', 'first_name', 'last_name'];
-    
+
     const rows = clientsToExport.map(client => {
       const email = client.email || '';
-      
+
       // Formatar WhatsApp para formato internacional (55 + DDD + número)
       let phone = '';
       if (client.whatsapp) {
@@ -469,12 +471,12 @@ export default function ClientsManager() {
           phone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
         }
       }
-      
+
       // Separar nome em first_name e last_name
       const nameParts = client.name.trim().split(' ');
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
-      
+
       return [
         email,
         phone,
@@ -506,7 +508,7 @@ export default function ClientsManager() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     alert(`✅ ${clientsToExport.length} cliente(s) exportado(s) em formato CSV para Meta Ads!\n\nArquivo: clientes_meta_ads_${new Date().toISOString().split('T')[0]}.csv`);
   };
 
@@ -597,7 +599,7 @@ export default function ClientsManager() {
             <h1 className="manager-title">Clientes</h1>
             <p className="manager-subtitle">Gerencie sua base de clientes</p>
           </div>
-          
+
           <div className="header-actions">
             <div className="search-box">
               <Search size={18} color="#6a6a7a" />
@@ -649,7 +651,7 @@ export default function ClientsManager() {
                     <div className="client-whatsapp">{formatPhone(client.whatsapp)}</div>
                   </div>
                 </div>
-                
+
                 <div className="client-stats">
                   <div className="stat-item">
                     <div className="stat-value">{client.total_purchases || 0}</div>
@@ -662,19 +664,19 @@ export default function ClientsManager() {
                     <div className="stat-label">Total Gasto</div>
                   </div>
                 </div>
-                
+
                 <div className="client-actions">
-                  <button 
+                  <button
                     className="client-btn whatsapp"
                     onClick={() => openWhatsApp(client.whatsapp, client.name)}
                   >
                     <MessageCircle size={16} />
                     WhatsApp
                   </button>
-                  <button className="client-btn edit" onClick={() => handleEdit(client)}>
+                  <button className="client-btn edit" onClick={() => handleEdit(client)} title="Editar cliente">
                     <Edit2 size={16} />
                   </button>
-                  <button className="client-btn delete" onClick={() => handleDelete(client.id)}>
+                  <button className="client-btn delete" onClick={() => handleDelete(client.id)} title="Excluir cliente">
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -685,17 +687,17 @@ export default function ClientsManager() {
 
         {/* Modal */}
         {showModal && (
-          <div className="modal-overlay" onClick={() => setShowModal(false)}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="client-modal-overlay" onClick={() => setShowModal(false)}>
+            <div className="client-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h3 className="modal-title">
                   {editingClient ? 'Editar Cliente' : 'Novo Cliente'}
                 </h3>
-                <button className="modal-close" onClick={() => setShowModal(false)}>
+                <button className="modal-close" onClick={() => setShowModal(false)} title="Fechar">
                   <X size={20} />
                 </button>
               </div>
-              
+
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
                   <div className="form-group">
@@ -709,7 +711,7 @@ export default function ClientsManager() {
                       required
                     />
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">WhatsApp</label>
                     <input
@@ -721,20 +723,21 @@ export default function ClientsManager() {
                       required
                     />
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">Categoria</label>
                     <select
                       className="form-select"
                       value={formData.tag}
                       onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                      aria-label="Categoria do cliente"
                     >
                       <option value="novo">Novo</option>
                       <option value="recorrente">Recorrente</option>
                       <option value="vip">VIP</option>
                     </select>
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">Observações (opcional)</label>
                     <input
@@ -746,7 +749,7 @@ export default function ClientsManager() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
                     Cancelar

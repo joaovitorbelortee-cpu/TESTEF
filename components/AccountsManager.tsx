@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Search, 
-  Edit2, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
   X,
   Package,
   Eye,
@@ -272,7 +272,7 @@ const styles = `
     color: #25d366;
   }
   
-  .modal-overlay {
+  .account-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -282,11 +282,11 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999;
     padding: 20px;
   }
   
-  .modal {
+  .account-modal {
     background: #16161f;
     border: 1px solid rgba(42, 42, 58, 0.5);
     border-radius: 16px;
@@ -294,6 +294,8 @@ const styles = `
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   }
   
   .modal-header {
@@ -474,7 +476,7 @@ export default function AccountsManager() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [showPasswords, setShowPasswords] = useState<Record<number, boolean>>({});
   const [copiedId, setCopiedId] = useState<number | null>(null);
-  
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -549,9 +551,9 @@ export default function AccountsManager() {
       setAccounts(accountsWithDetails);
     } catch (error: any) {
       console.error('❌ Erro ao carregar contas:', error);
-      
+
       let errorMessage = 'Erro ao carregar contas.';
-      
+
       if (error.message) {
         errorMessage = error.message;
       } else if (error.code === 'PGRST116') {
@@ -561,7 +563,7 @@ export default function AccountsManager() {
       } else if (error.message?.includes('relation') || error.message?.includes('does not exist')) {
         errorMessage = 'Tabelas não encontradas. Execute o SQL do arquivo supabase-schema.sql no Supabase.';
       }
-      
+
       alert(errorMessage);
     } finally {
       setLoading(false);
@@ -618,10 +620,10 @@ export default function AccountsManager() {
     }
 
     const isSold = isSoldAccount(account.status);
-    const message = isSold 
+    const message = isSold
       ? `⚠️ ATENÇÃO: Esta conta está VENDIDA!\n\nAo excluir:\n• A venda será estornada automaticamente\n• A conta será removida permanentemente\n• O cliente perderá acesso\n\nTem certeza que deseja continuar?`
       : 'Tem certeza que deseja excluir esta conta?';
-    
+
     if (confirm(message)) {
       try {
         // Se for conta vendida, primeiro estornar a venda
@@ -647,7 +649,7 @@ export default function AccountsManager() {
             if (deleteSaleError) throw deleteSaleError;
           }
         }
-        
+
         // Deletar a conta diretamente do Supabase
         const { error: deleteError } = await supabase
           .from('accounts')
@@ -742,7 +744,7 @@ export default function AccountsManager() {
             <h1 className="manager-title">Contas GamePass</h1>
             <p className="manager-subtitle">Gerencie seu estoque de contas</p>
           </div>
-          
+
           <div className="header-actions">
             <div className="search-box">
               <Search size={18} color="#6a6a7a" />
@@ -763,35 +765,35 @@ export default function AccountsManager() {
 
         {/* Tabs de Filtro */}
         <div className="tabs">
-          <button 
+          <button
             className={`tab ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
             Todas
             <span className="tab-count">{accounts.length}</span>
           </button>
-          <button 
+          <button
             className={`tab ${filter === 'available' ? 'active' : ''}`}
             onClick={() => setFilter('available')}
           >
             Disponíveis
             <span className="tab-count">{availableCount}</span>
           </button>
-          <button 
+          <button
             className={`tab ${filter === 'sold' ? 'active' : ''}`}
             onClick={() => setFilter('sold')}
           >
             Vendidas
             <span className="tab-count">{soldCount}</span>
           </button>
-          <button 
+          <button
             className={`tab ${filter === 'pending-renewal' ? 'active' : ''}`}
             onClick={() => setFilter('pending-renewal')}
           >
             Precisa Renovar
             <span className="tab-count">{pendingRenewalCount}</span>
           </button>
-          <button 
+          <button
             className={`tab ${filter === 'expired' ? 'active' : ''}`}
             onClick={() => setFilter('expired')}
           >
@@ -809,18 +811,18 @@ export default function AccountsManager() {
                 <Package size={36} />
               </div>
               <h3 style={{ color: '#fff', marginBottom: 8 }}>
-                {filter === 'available' ? 'Nenhuma conta disponível' : 
-                 filter === 'sold' ? 'Nenhuma conta vendida' : 
-                 filter === 'pending-renewal' ? 'Nenhuma conta precisa renovar' :
-                 filter === 'expired' ? 'Nenhuma conta vencida' :
-                 'Nenhuma conta encontrada'}
+                {filter === 'available' ? 'Nenhuma conta disponível' :
+                  filter === 'sold' ? 'Nenhuma conta vendida' :
+                    filter === 'pending-renewal' ? 'Nenhuma conta precisa renovar' :
+                      filter === 'expired' ? 'Nenhuma conta vencida' :
+                        'Nenhuma conta encontrada'}
               </h3>
               <p>
                 {filter === 'available' ? 'Adicione novas contas ao estoque' :
-                 filter === 'sold' ? 'As contas vendidas aparecerão aqui' :
-                 filter === 'pending-renewal' ? 'Todas as contas estão em dia!' :
-                 filter === 'expired' ? 'Nenhuma conta vencida sem renovação' :
-                 'Adicione sua primeira conta clicando em "Nova Conta"'}
+                  filter === 'sold' ? 'As contas vendidas aparecerão aqui' :
+                    filter === 'pending-renewal' ? 'Todas as contas estão em dia!' :
+                      filter === 'expired' ? 'Nenhuma conta vencida sem renovação' :
+                        'Adicione sua primeira conta clicando em "Nova Conta"'}
               </p>
             </div>
           ) : (
@@ -848,13 +850,13 @@ export default function AccountsManager() {
                         <span className="password-text">
                           {showPasswords[account.id] ? account.password : '••••••••'}
                         </span>
-                        <button 
+                        <button
                           className="copy-btn"
                           onClick={() => togglePassword(account.id)}
                         >
                           {showPasswords[account.id] ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
-                        <button 
+                        <button
                           className="copy-btn"
                           onClick={() => copyPassword(account.id, account.password)}
                         >
@@ -889,8 +891,8 @@ export default function AccountsManager() {
                     <td>
                       <div className="actions-cell">
                         {isSoldAccount(account.status) && account.client_whatsapp && (
-                          <button 
-                            className="action-btn whatsapp" 
+                          <button
+                            className="action-btn whatsapp"
                             onClick={() => openWhatsApp(account.client_whatsapp!, account.client_name!)}
                             title="Abrir WhatsApp"
                           >
@@ -900,8 +902,8 @@ export default function AccountsManager() {
                         <button className="action-btn" onClick={() => handleEdit(account)} title="Editar">
                           <Edit2 size={14} />
                         </button>
-                        <button 
-                          className="action-btn danger" 
+                        <button
+                          className="action-btn danger"
                           onClick={() => handleDelete(account.id, account)}
                           title="Excluir"
                         >
@@ -918,17 +920,17 @@ export default function AccountsManager() {
 
         {/* Modal */}
         {showModal && (
-          <div className="modal-overlay" onClick={() => setShowModal(false)}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="account-modal-overlay" onClick={() => setShowModal(false)}>
+            <div className="account-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h3 className="modal-title">
                   {editingAccount ? 'Editar Conta' : 'Nova Conta'}
                 </h3>
-                <button className="modal-close" onClick={() => setShowModal(false)}>
+                <button className="modal-close" onClick={() => setShowModal(false)} title="Fechar">
                   <X size={20} />
                 </button>
               </div>
-              
+
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
                   <div className="form-group">
@@ -942,7 +944,7 @@ export default function AccountsManager() {
                       required
                     />
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">Senha</label>
                     <input
@@ -954,7 +956,7 @@ export default function AccountsManager() {
                       required
                     />
                   </div>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
                       <label className="form-label">Data de Compra</label>
@@ -964,9 +966,10 @@ export default function AccountsManager() {
                         value={formData.purchase_date}
                         onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
                         required
+                        title="Data de compra"
                       />
                     </div>
-                    
+
                     <div className="form-group">
                       <label className="form-label">Validade</label>
                       <input
@@ -975,10 +978,11 @@ export default function AccountsManager() {
                         value={formData.expiry_date}
                         onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
                         required
+                        title="Data de validade"
                       />
                     </div>
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">Custo (R$)</label>
                     <input
@@ -991,7 +995,7 @@ export default function AccountsManager() {
                       required
                     />
                   </div>
-                  
+
                   <div className="form-group">
                     <label className="form-label">Observações (opcional)</label>
                     <input
@@ -1003,7 +1007,7 @@ export default function AccountsManager() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
                     Cancelar

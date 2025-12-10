@@ -7,11 +7,18 @@
   
   # Diretório de publicação
   publish = "dist"
-  
-  # Diretório base (opcional)
-  # base = "/"
 
-# Configurações de redirecionamento (para SPA)
+[functions]
+  directory = "netlify/functions"
+
+# Redirecionar chamadas de API para a Function
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# Fallback para SPA (React)
 [[redirects]]
   from = "/*"
   to = "/index.html"
