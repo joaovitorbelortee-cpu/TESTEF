@@ -1,34 +1,32 @@
-// Configuração da API - Compatível com Vercel e desenvolvimento local
-// Em desenvolvimento, sempre usa localhost:3001
-// Em produção (Vercel), usa a mesma origem
+// Configuração da API - Netlify Functions
+// Em desenvolvimento, usa localhost:3001
+// Em produção (Netlify), usa a mesma origem com /api
+
 const getApiBaseUrl = () => {
   // Se tiver variável de ambiente definida, usa ela
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  
-  // Se estiver em desenvolvimento (Vite)
+
+  // Se estiver em desenvolvimento (Vite dev server)
   if (import.meta.env.DEV) {
     return 'http://localhost:3001/api';
   }
-  
-  // Em produção, usa a mesma origem
+
+  // Em produção (Netlify), usa a mesma origem
+  // O netlify.toml redireciona /api/* para /.netlify/functions/api
   if (typeof window !== 'undefined') {
     return window.location.origin + '/api';
   }
-  
+
   // Fallback
-  return 'http://localhost:3001/api';
+  return '/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
 
-// Log para debug (sempre para verificar em produção)
+// Log para debug
 if (typeof window !== 'undefined') {
   console.log('🔧 API Base URL:', API_BASE_URL);
-  console.log('🔧 VITE_API_URL configurado:', import.meta.env.VITE_API_URL ? 'Sim' : 'Não');
-  if (!import.meta.env.VITE_API_URL && !import.meta.env.DEV) {
-    console.warn('⚠️ VITE_API_URL não configurado no Netlify. Configure apontando para o backend no Vercel.');
-  }
+  console.log('🔧 Ambiente:', import.meta.env.DEV ? 'Desenvolvimento' : 'Produção (Netlify)');
 }
-

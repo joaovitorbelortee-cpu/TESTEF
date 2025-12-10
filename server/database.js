@@ -6,10 +6,10 @@ import { createHash, randomBytes } from 'crypto';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// No Vercel, usar /tmp para escrita (único diretório writable)
+// Em Netlify Functions, usar /tmp para escrita (único diretório writable em serverless)
 // Em desenvolvimento, usar o diretório do servidor
-const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
-const dbPath = isVercel 
+const isServerless = process.env.NETLIFY === 'true' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const dbPath = isServerless
   ? join('/tmp', 'gamepass-data.json')
   : join(__dirname, 'data.json');
 
@@ -169,12 +169,12 @@ class Database {
     if (hasSales && !force) {
       throw new Error('Não é possível deletar conta com vendas vinculadas');
     }
-    
+
     // Se force=true, deletar as vendas vinculadas primeiro
     if (hasSales && force) {
       this.data.sales = this.data.sales.filter(s => s.account_id !== id);
     }
-    
+
     this.data.accounts = this.data.accounts.filter(a => a.id !== id);
     this.save();
   }
@@ -183,11 +183,11 @@ class Database {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Zerar horas para comparação apenas de data
     const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
     this.data.accounts.forEach(account => {
       const expiryDate = new Date(account.expiry_date);
       expiryDate.setHours(0, 0, 0, 0); // Zerar horas para comparação apenas de data
-      
+
       // Conta vencida
       if (expiryDate < today) {
         const hasSale = this.data.sales.some(s => s.account_id === account.id);
@@ -205,7 +205,7 @@ class Database {
         account.updated_at = new Date().toISOString();
       }
     });
-    
+
     this.save();
   }
 
@@ -302,7 +302,7 @@ class Database {
   getClientById(id) {
     const client = this.data.clients.find(c => c.id === id);
     if (!client) return null;
-    
+
     const purchases = this.data.sales
       .filter(s => s.client_id === id)
       .map(sale => {
@@ -313,7 +313,7 @@ class Database {
           expiry_date: account?.expiry_date
         };
       });
-    
+
     return {
       ...client,
       total_purchases: purchases.length,
@@ -334,7 +334,7 @@ class Database {
     if (data.whatsapp && this.getClientByWhatsapp(data.whatsapp)) {
       throw new Error('Cliente com este WhatsApp já existe');
     }
-    
+
     const client = {
       id: this.data.nextIds.clients++,
       name: data.name,
@@ -383,93 +383,93 @@ class Database {
   registerClientPortal(email, password) {
     // Verificar se email já tem compra
     const client = this.data.clients.find(c => c.email === email);
-    
+
     if (!client) {
       throw new Error('Email não encontrado. Use o mesmo email da compra.');
     }
-    
+
     if (client.password_hash) {
       throw new Error('Este email já possui cadastro. Faça login.');
     }
-    
+
     // Verificar se tem vendas vinculadas
     const hasPurchases = this.data.sales.some(s => s.client_id === client.id);
     if (!hasPurchases) {
       throw new Error('Nenhuma compra encontrada para este email.');
     }
-    
+
     // Definir senha
     client.password_hash = hashPassword(password);
     client.updated_at = new Date().toISOString();
     this.save();
-    
+
     return { id: client.id, name: client.name, email: client.email };
   }
 
   loginClientPortal(email, password) {
     const client = this.data.clients.find(c => c.email === email);
-    
+
     if (!client) {
       throw new Error('Email não encontrado.');
     }
-    
+
     if (!client.password_hash) {
       throw new Error('Primeiro acesso? Cadastre sua senha.');
     }
-    
+
     if (client.password_hash !== hashPassword(password)) {
       throw new Error('Senha incorreta.');
     }
-    
+
     // Gerar token
     const token = generateToken();
     client.auth_token = token;
     client.token_expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h
     this.save();
-    
-    return { 
-      token, 
-      client: { 
-        id: client.id, 
-        name: client.name, 
-        email: client.email 
-      } 
+
+    return {
+      token,
+      client: {
+        id: client.id,
+        name: client.name,
+        email: client.email
+      }
     };
   }
 
   validateToken(token) {
     const client = this.data.clients.find(c => c.auth_token === token);
-    
+
     if (!client) {
       return null;
     }
-    
+
     if (new Date(client.token_expires) < new Date()) {
       return null;
     }
-    
+
     return client;
   }
 
   getClientActiveAccount(clientId) {
     this.updateAccountStatuses();
-    
+
     // Buscar última venda do cliente
     const clientSales = this.data.sales
       .filter(s => s.client_id === clientId)
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    
+
     if (clientSales.length === 0) {
       return null;
     }
-    
+
     const lastSale = clientSales[0];
     const account = this.data.accounts.find(a => a.id === lastSale.account_id);
-    
+
     if (!account) {
       return null;
     }
-    
+
     return {
       id: account.id,
       email: account.email,
@@ -519,10 +519,10 @@ class Database {
   getSaleById(id) {
     const sale = this.data.sales.find(s => s.id === id);
     if (!sale) return null;
-    
+
     const client = this.data.clients.find(c => c.id === sale.client_id);
     const account = this.data.accounts.find(a => a.id === sale.account_id);
-    
+
     return {
       ...sale,
       client_name: client?.name,
@@ -536,7 +536,7 @@ class Database {
 
   createSale(data) {
     let clientId = data.client_id;
-    
+
     // Criar cliente se não existir
     if (!clientId && data.client_name && (data.client_whatsapp || data.client_email)) {
       let client = data.client_whatsapp ? this.getClientByWhatsapp(data.client_whatsapp) : null;
@@ -558,13 +558,13 @@ class Database {
       }
       clientId = client.id;
     }
-    
+
     // Verificar conta
     const account = this.getAccountById(data.account_id);
     if (!account || account.status !== 'available') {
       throw new Error('Conta não está disponível');
     }
-    
+
     // Criar venda
     const sale = {
       id: this.data.nextIds.sales++,
@@ -578,10 +578,10 @@ class Database {
       created_at: new Date().toISOString()
     };
     this.data.sales.push(sale);
-    
+
     // Marcar conta como vendida
     this.updateAccount(data.account_id, { status: 'sold' });
-    
+
     // Atualizar tag do cliente
     const clientSales = this.data.sales.filter(s => s.client_id === clientId);
     const client = this.data.clients.find(c => c.id === clientId);
@@ -592,7 +592,7 @@ class Database {
         this.updateClient(clientId, { tag: 'recorrente' });
       }
     }
-    
+
     this.save();
     return this.getSaleById(sale.id);
   }
@@ -602,10 +602,10 @@ class Database {
     if (!sale) {
       throw new Error('Venda não encontrada');
     }
-    
+
     // Voltar conta para disponível
     this.updateAccount(sale.account_id, { status: 'available' });
-    
+
     // Remover venda
     this.data.sales = this.data.sales.filter(s => s.id !== id);
     this.save();
@@ -614,26 +614,26 @@ class Database {
   // Dashboard
   getDashboard() {
     this.updateAccountStatuses();
-    
+
     const now = new Date();
     const today = now.toISOString().split('T')[0];
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    
+
     const todaySales = this.data.sales.filter(s => s.created_at.startsWith(today));
     const weekSales = this.data.sales.filter(s => new Date(s.created_at) >= weekAgo);
     const monthSales = this.data.sales.filter(s => new Date(s.created_at) >= monthAgo);
-    
+
     const calcStats = (sales) => ({
       count: sales.length,
       revenue: sales.reduce((sum, s) => sum + s.sale_price, 0),
       profit: sales.reduce((sum, s) => sum + s.profit, 0)
     });
-    
+
     const stockByStatus = (status) => this.data.accounts.filter(a => a.status === status).length;
-    
+
     const clientsByTag = (tag) => this.data.clients.filter(c => c.tag === tag).length;
-    
+
     // Vendas por dia (últimos 7 dias)
     const salesByDay = [];
     for (let i = 6; i >= 0; i--) {
@@ -647,7 +647,7 @@ class Database {
         profit: daySales.reduce((sum, s) => sum + s.profit, 0)
       });
     }
-    
+
     return {
       today: calcStats(todaySales),
       week: calcStats(weekSales),

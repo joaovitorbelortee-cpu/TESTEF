@@ -6,7 +6,7 @@ const API_URL = API_BASE_URL;
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_URL}${endpoint}`;
   console.log('🔗 API Request:', url); // Debug
-  
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -15,7 +15,7 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
         ...options?.headers,
       },
     });
-    
+
     // Verificar se a resposta é HTML (erro comum quando API não está configurada)
     const contentType = response.headers.get('content-type');
     if (contentType && !contentType.includes('application/json')) {
@@ -24,27 +24,27 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
         throw new Error(`A API retornou HTML ao invés de JSON. Verifique se VITE_API_URL está configurado corretamente no Netlify. URL atual: ${url}`);
       }
     }
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: `HTTP ${response.status}: ${response.statusText}` }));
       console.error('❌ API Error:', error);
       throw new Error(error.error || `Erro na requisição: ${response.status}`);
     }
-    
+
     return response.json();
   } catch (error: any) {
     console.error('❌ Fetch Error:', error);
-    
+
     // Melhorar mensagem de erro para "Failed to fetch"
     if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
       throw new Error('Failed to fetch - Verifique se o servidor está rodando e acessível');
     }
-    
+
     // Detectar erro de JSON inválido (HTML retornado)
     if (error.message?.includes('Unexpected token') || error.message?.includes('JSON')) {
-      throw new Error('A API retornou HTML ao invés de JSON. Configure VITE_API_URL no Netlify apontando para o backend no Vercel.');
+      throw new Error('A API retornou HTML ao invés de JSON. Verifique se a Netlify Function está configurada corretamente.');
     }
-    
+
     throw error;
   }
 }
@@ -89,33 +89,33 @@ export const salesAPI = {
 
 // Portal (Cliente)
 export const portalAPI = {
-  login: (email: string, password: string) => 
+  login: (email: string, password: string) =>
     fetchAPI('/portal/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-  
-  register: (email: string, password: string) => 
+
+  register: (email: string, password: string) =>
     fetchAPI('/portal/register', { method: 'POST', body: JSON.stringify({ email, password }) }),
-  
-  checkEmail: (email: string) => 
+
+  checkEmail: (email: string) =>
     fetchAPI('/portal/check-email', { method: 'POST', body: JSON.stringify({ email }) }),
-  
-  getMyAccount: (token: string) => 
-    fetchAPI('/portal/my-account', { 
-      headers: { 'Authorization': `Bearer ${token}` } 
+
+  getMyAccount: (token: string) =>
+    fetchAPI('/portal/my-account', {
+      headers: { 'Authorization': `Bearer ${token}` }
     }),
-  
-  getPurchases: (token: string) => 
-    fetchAPI('/portal/purchases', { 
-      headers: { 'Authorization': `Bearer ${token}` } 
+
+  getPurchases: (token: string) =>
+    fetchAPI('/portal/purchases', {
+      headers: { 'Authorization': `Bearer ${token}` }
     }),
-  
-  verify: (token: string) => 
-    fetchAPI('/portal/verify', { 
-      headers: { 'Authorization': `Bearer ${token}` } 
+
+  verify: (token: string) =>
+    fetchAPI('/portal/verify', {
+      headers: { 'Authorization': `Bearer ${token}` }
     }),
-  
-  logout: (token: string) => 
-    fetchAPI('/portal/logout', { 
+
+  logout: (token: string) =>
+    fetchAPI('/portal/logout', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` } 
+      headers: { 'Authorization': `Bearer ${token}` }
     }),
 };
