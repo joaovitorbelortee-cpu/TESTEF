@@ -810,7 +810,7 @@ export default function AccountsManager() {
               <div className="empty-state-icon">
                 <Package size={36} />
               </div>
-              <h3 style={{ color: '#fff', marginBottom: 8 }}>
+              <h3 className="text-white mb-8">
                 {filter === 'available' ? 'Nenhuma conta disponível' :
                   filter === 'sold' ? 'Nenhuma conta vendida' :
                     filter === 'pending-renewal' ? 'Nenhuma conta precisa renovar' :
@@ -874,13 +874,13 @@ export default function AccountsManager() {
                             )}
                           </div>
                         ) : (
-                          <span style={{ color: '#6a6a7a' }}>-</span>
+                          <span className="text-muted">-</span>
                         )}
                       </td>
                     )}
                     <td>{formatDate(account.purchase_date)}</td>
                     <td>{formatDate(account.expiry_date)}</td>
-                    <td style={{ fontFamily: 'JetBrains Mono', color: '#fff' }}>
+                    <td className="font-mono text-white">
                       R$ {account.cost.toFixed(2)}
                     </td>
                     <td>

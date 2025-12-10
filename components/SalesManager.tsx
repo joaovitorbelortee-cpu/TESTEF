@@ -687,7 +687,7 @@ export default function SalesManager() {
               <div className="empty-state-icon">
                 <ShoppingCart size={36} />
               </div>
-              <h3 style={{ color: '#fff', marginBottom: 8 }}>Nenhuma venda encontrada</h3>
+              <h3 className="text-white mb-8">Nenhuma venda encontrada</h3>
               <p>Registre sua primeira venda clicando em "Nova Venda"</p>
             </div>
           ) : (
@@ -794,7 +794,7 @@ export default function SalesManager() {
 
                     <div className="sale-result-item">
                       <span className="sale-result-label">Lucro:</span>
-                      <span className="sale-result-value" style={{ color: '#10b981' }}>
+                      <span className="sale-result-value text-success">
                         +{formatCurrency(newSale.profit)}
                       </span>
                     </div>

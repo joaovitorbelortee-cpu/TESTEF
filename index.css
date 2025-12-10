@@ -11,6 +11,103 @@
   margin-top: 12px !important;
 }
 
+/* Utilities */
+.text-white {
+  color: #fff;
+}
+
+.text-muted {
+  color: #6a6a7a;
+}
+
+.text-success {
+  color: #10b981;
+}
+
+.text-danger {
+  color: #ef4444;
+}
+
+.text-warning {
+  color: #f59e0b;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+
+.text-xs {
+  font-size: 12px;
+}
+
+.text-sm {
+  font-size: 14px;
+}
+
+.text-lg {
+  font-size: 16px;
+}
+
+.text-xl {
+  font-size: 24px;
+}
+
+.mb-4 {
+  margin-bottom: 4px;
+}
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+
+.mt-4 {
+  margin-top: 4px;
+}
+
+.mt-8 {
+  margin-top: 8px;
+}
+
+.p-20 {
+  padding: 20px;
+}
+
+/* Alert Box Styles */
+.box-neon {
+  background: rgba(57, 255, 20, 0.1);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+}
+
+.text-neon {
+  color: #39ff14;
+}
+
+.box-whatsapp {
+  background: rgba(37, 211, 102, 0.1);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+}
+
+.text-whatsapp {
+  color: #25d366;
+}
+
+.box-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.border-danger-light {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.bg-danger-light {
+  background: rgba(239, 68, 68, 0.2);
+}
+
 /* Common Accessibility Helpers */
 .sr-only {
   position: absolute;

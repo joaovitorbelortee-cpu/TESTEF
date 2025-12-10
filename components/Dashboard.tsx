@@ -660,7 +660,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </div>
 
           {/* Alerts & Stock */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div className="flex-col-gap-24">
             {/* Expiring Accounts Alert */}
             <div className="card">
               <div className="card-header">
@@ -671,8 +671,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               </div>
 
               {data.expiringAccounts.length === 0 ? (
-                <div className="empty-state" style={{ padding: 20 }}>
-                  <p style={{ fontSize: 13 }}>Nenhuma conta vencendo nos próximos 7 dias 🎉</p>
+                <div className="empty-state p-20">
+                  <p className="text-sm">Nenhuma conta vencendo nos próximos 7 dias 🎉</p>
                 </div>
               ) : (
                 data.expiringAccounts.slice(0, 3).map((account) => (
@@ -730,21 +730,21 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Week Summary */}
-        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+        <div className="stats-grid grid-cols-3">
           <div className="stat-card">
-            <div className="stat-label" style={{ marginBottom: 8 }}>Esta Semana</div>
-            <div className="stat-value" style={{ fontSize: 24 }}>{formatCurrency(data.week.revenue)}</div>
-            <div style={{ color: '#6a6a7a', fontSize: 12, marginTop: 4 }}>{data.week.count} vendas</div>
+            <div className="stat-label mb-8">Esta Semana</div>
+            <div className="stat-value text-xl">{formatCurrency(data.week.revenue)}</div>
+            <div className="text-xs mt-4 text-muted">{data.week.count} vendas</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label" style={{ marginBottom: 8 }}>Lucro da Semana</div>
-            <div className="stat-value" style={{ fontSize: 24, color: '#10b981' }}>{formatCurrency(data.week.profit)}</div>
-            <div style={{ color: '#6a6a7a', fontSize: 12, marginTop: 4 }}>Lucro líquido</div>
+            <div className="stat-label mb-8">Lucro da Semana</div>
+            <div className="stat-value text-xl text-success">{formatCurrency(data.week.profit)}</div>
+            <div className="text-xs mt-4 text-muted">Lucro líquido</div>
           </div>
           <div className="stat-card">
-            <div className="stat-label" style={{ marginBottom: 8 }}>Este Mês</div>
-            <div className="stat-value" style={{ fontSize: 24 }}>{formatCurrency(data.month.revenue)}</div>
-            <div style={{ color: '#6a6a7a', fontSize: 12, marginTop: 4 }}>{data.month.count} vendas • {formatCurrency(data.month.profit)} lucro</div>
+            <div className="stat-label mb-8">Este Mês</div>
+            <div className="stat-value text-xl">{formatCurrency(data.month.revenue)}</div>
+            <div className="text-xs mt-4 text-muted">{data.month.count} vendas • {formatCurrency(data.month.profit)} lucro</div>
           </div>
         </div>
       </div>

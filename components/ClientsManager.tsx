@@ -630,7 +630,7 @@ export default function ClientsManager() {
               <div className="empty-state-icon">
                 <Users size={36} />
               </div>
-              <h3 style={{ color: '#fff', marginBottom: 8 }}>Nenhum cliente encontrado</h3>
+              <h3 className="text-white mb-8">Nenhum cliente encontrado</h3>
               <p>Adicione seu primeiro cliente clicando em "Novo Cliente"</p>
             </div>
           ) : (
@@ -658,7 +658,7 @@ export default function ClientsManager() {
                     <div className="stat-label">Compras</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-value" style={{ fontSize: 16 }}>
+                    <div className="stat-value text-lg">
                       {formatCurrency(client.total_spent || 0)}
                     </div>
                     <div className="stat-label">Total Gasto</div>

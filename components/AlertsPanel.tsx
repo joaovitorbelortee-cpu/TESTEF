@@ -848,30 +848,25 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
                 {expiredAccounts.map((account: any) => {
                   const daysExpired = account.days_expired || 0;
                   return (
-                    <div key={account.id} className="alert-item" style={{ borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                    <div key={account.id} className="alert-item border-danger-light">
                       <div className="alert-content">
                         <div className="alert-header">
-                          <span className="alert-name" style={{ color: '#ef4444' }}>Conta Vencida</span>
-                          <span className="alert-badge" style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
+                          <span className="alert-name text-danger">Conta Vencida</span>
+                          <span className="alert-badge bg-danger-light text-danger">
                             {daysExpired > 0 ? `Expirada há ${daysExpired} dia${daysExpired !== 1 ? 's' : ''}` : 'Expirada hoje'}
                           </span>
                         </div>
 
-                        <div className="alert-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                          <div style={{
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(239, 68, 68, 0.3)'
-                          }}>
-                            <div style={{ fontWeight: 600, color: '#ef4444', fontSize: '13px', marginBottom: '4px' }}>
+                        <div className="alert-details-container">
+                          <div className="alert-detail-box box-danger">
+                            <div className="detail-label text-danger">
                               🎮 CONTA GAMEPASS
                             </div>
-                            <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace' }}>
+                            <div className="detail-value">
                               {account.email}
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#6a6a7a', marginTop: '4px' }}>
+                          <div className="meta-info">
                             <span>📅 Venceu: {new Date(account.expiry_date).toLocaleDateString('pt-BR')}</span>
                             <span>💰 Custo: R$ {account.cost?.toFixed(2) || '0.00'}</span>
                           </div>
