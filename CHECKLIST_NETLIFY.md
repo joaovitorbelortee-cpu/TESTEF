@@ -27,9 +27,9 @@
 **Configure no Netlify → Environment Variables:**
 
 ```
-VITE_SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co
-VITE_SUPABASE_ANON_KEY = sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
-VITE_API_URL = https://copy-of-aether-command-center-5-ca7s346ul-fs-projects-972ea2c4.vercel.app/api
+VITE_SUPABASE_URL = [SUA_URL_DO_SUPABASE]
+VITE_SUPABASE_ANON_KEY = [SUA_PUBLISHABLE_KEY]
+VITE_API_URL = [SUA_URL_DO_BACKEND]/api
 ```
 
 **⚠️ IMPORTANTE:**
@@ -112,8 +112,8 @@ O build deve:
 ## 📝 Resumo das URLs
 
 - **Frontend (Netlify)**: `https://seu-site.netlify.app`
-- **Backend (Vercel)**: `https://copy-of-aether-command-center-5-ca7s346ul-fs-projects-972ea2c4.vercel.app`
-- **Supabase**: `https://cpzxslaufhomqxksyrwt.supabase.co`
+- **Backend (Vercel)**: `[SUA_URL_DO_BACKEND]`
+- **Supabase**: `[SUA_URL_DO_SUPABASE]`
 
 ---
 
@@ -122,4 +122,5 @@ O build deve:
 **Código está pronto para deploy no Netlify! 🎉**
 
 Apenas configure as variáveis de ambiente e faça o deploy!
+
 

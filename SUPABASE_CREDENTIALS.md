@@ -4,22 +4,22 @@
 
 **URL do Projeto:**
 ```
-https://cpzxslaufhomqxksyrwt.supabase.co
+[SUA_URL_DO_SUPABASE]
 ```
 
 **Anon Key (JWT - para Frontend e Backend):**
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk
+[SUA_ANON_KEY]
 ```
 
 **Publishable Key (Recomendado para Frontend - mais simples):**
 ```
-sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+[SUA_PUBLISHABLE_KEY]
 ```
 
 **Service Role Key (APENAS Backend - NUNCA no frontend!):**
 ```
-sb_secret_48MaezSonAxYplSHLJ7DZg_bz2XT0E0
+[SUA_SERVICE_ROLE_KEY]
 ```
 
 ---
@@ -38,8 +38,8 @@ sb_secret_48MaezSonAxYplSHLJ7DZg_bz2XT0E0
 **Site settings** → **Environment variables**:
 
 ```
-VITE_SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co
-VITE_SUPABASE_ANON_KEY = sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+VITE_SUPABASE_URL = [SUA_URL_DO_SUPABASE]
+VITE_SUPABASE_ANON_KEY = [SUA_PUBLISHABLE_KEY]
 ```
 
 💡 **Dica:** Use a Publishable Key no frontend (mais simples que a Anon Key JWT)
@@ -49,8 +49,8 @@ VITE_SUPABASE_ANON_KEY = sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
 **Settings** → **Environment Variables**:
 
 ```
-SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co
-SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk
+SUPABASE_URL = [SUA_URL_DO_SUPABASE]
+SUPABASE_ANON_KEY = [SUA_ANON_KEY]
 ```
 
 ### 3. Local (.env)
@@ -58,11 +58,11 @@ SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 Crie um arquivo `.env` na raiz:
 
 ```env
-SUPABASE_URL=https://cpzxslaufhomqxksyrwt.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk
+SUPABASE_URL=[SUA_URL_DO_SUPABASE]
+SUPABASE_ANON_KEY=[SUA_ANON_KEY]
 
-VITE_SUPABASE_URL=https://cpzxslaufhomqxksyrwt.supabase.co
-VITE_SUPABASE_ANON_KEY=sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+VITE_SUPABASE_URL=[SUA_URL_DO_SUPABASE]
+VITE_SUPABASE_ANON_KEY=[SUA_PUBLISHABLE_KEY]
 ```
 
 ---

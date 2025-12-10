@@ -27,19 +27,19 @@ Clique em **Add variable** e adicione uma por uma:
 #### Variável 1:
 ```
 Key: VITE_SUPABASE_URL
-Value: https://cpzxslaufhomqxksyrwt.supabase.co
+Value: [SUA_URL_DO_SUPABASE]
 ```
 
 #### Variável 2:
 ```
 Key: VITE_SUPABASE_ANON_KEY
-Value: sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+Value: [SUA_PUBLISHABLE_KEY]
 ```
 
 #### Variável 3:
 ```
 Key: VITE_API_URL
-Value: https://copy-of-aether-command-center-5-ca7s346ul-fs-projects-972ea2c4.vercel.app/api
+Value: [SUA_URL_DO_BACKEND]/api
 ```
 
 **⚠️ IMPORTANTE:**
@@ -64,7 +64,7 @@ Após o deploy:
 2. Abra o Console do navegador (F12)
 3. Você deve ver:
    ```
-   🔧 API Base URL: https://copy-of-aether-command-center-5-ca7s346ul-fs-projects-972ea2c4.vercel.app/api
+   🔧 API Base URL: [SUA_URL_DO_BACKEND]/api
    🔧 VITE_API_URL configurado: Sim
    🔧 Supabase URL configurada: Sim
    🔧 Supabase Key configurada: Sim
@@ -105,11 +105,12 @@ Após o deploy:
 1. Verifique se `VITE_API_URL` está correto
 2. Teste a URL do backend diretamente no navegador:
    ```
-   https://copy-of-aether-command-center-5-ca7s346ul-fs-projects-972ea2c4.vercel.app/api/health
+   [SUA_URL_DO_BACKEND]/api/health
    ```
 3. Deve retornar JSON, não HTML
 
 ---
 
 **Configure essas variáveis e faça novo deploy! 🚀**
+
 

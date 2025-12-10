@@ -57,3 +57,5 @@ Write-Host "📋 Configuração atual:" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "✅ Configuração concluída!" -ForegroundColor Green
 
+
+

@@ -82,3 +82,5 @@ Publish directory: dist
 
 **Resumo: Digite "main" manualmente no campo "Branch to deploy" no Netlify! 🎯**
 
+
+

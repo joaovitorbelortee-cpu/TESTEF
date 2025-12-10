@@ -4,24 +4,24 @@
 
 **URL do Projeto:**
 ```
-https://cpzxslaufhomqxksyrwt.supabase.co
+[SUA_URL_DO_SUPABASE]
 ```
 
 **Chaves Disponíveis:**
 
 1. **Publishable Key** (⭐ Recomendado para Frontend)
    ```
-   sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+   [SUA_PUBLISHABLE_KEY]
    ```
 
 2. **Anon Key** (JWT - Alternativa)
    ```
-   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk
+   [SUA_ANON_KEY]
    ```
 
 3. **Service Role Key** (⚠️ APENAS Backend)
    ```
-   sb_secret_48MaezSonAxYplSHLJ7DZg_bz2XT0E0
+   [SUA_SERVICE_ROLE_KEY]
    ```
 
 ---
@@ -29,13 +29,13 @@ https://cpzxslaufhomqxksyrwt.supabase.co
 ## 🎯 Qual Usar Onde?
 
 ### Frontend (Netlify)
-✅ **Use:** `sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi`  
+✅ **Use:** `[SUA_PUBLISHABLE_KEY]`  
 💡 Mais simples e direto
 
 ### Backend (Vercel)
-✅ **Use:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (Anon Key)  
-✅ **Ou:** `sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi` (Publishable Key)  
-⚠️ **Opcional:** `sb_secret_48MaezSonAxYplSHLJ7DZg_bz2XT0E0` (Service Role - apenas para operações admin)
+✅ **Use:** `[SUA_ANON_KEY]` (Anon Key)  
+✅ **Ou:** `[SUA_PUBLISHABLE_KEY]` (Publishable Key)  
+⚠️ **Opcional:** `[SUA_SERVICE_ROLE_KEY]` (Service Role - apenas para operações admin)
 
 ---
 
@@ -44,25 +44,25 @@ https://cpzxslaufhomqxksyrwt.supabase.co
 ### Netlify (Frontend)
 
 ```
-VITE_SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co
-VITE_SUPABASE_ANON_KEY = sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+VITE_SUPABASE_URL = [SUA_URL_DO_SUPABASE]
+VITE_SUPABASE_ANON_KEY = [SUA_PUBLISHABLE_KEY]
 ```
 
 ### Vercel (Backend)
 
 ```
-SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co
-SUPABASE_ANON_KEY = sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+SUPABASE_URL = [SUA_URL_DO_SUPABASE]
+SUPABASE_ANON_KEY = [SUA_PUBLISHABLE_KEY]
 ```
 
 ### Local (.env)
 
 ```env
-SUPABASE_URL=https://cpzxslaufhomqxksyrwt.supabase.co
-SUPABASE_ANON_KEY=sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+SUPABASE_URL=[SUA_URL_DO_SUPABASE]
+SUPABASE_ANON_KEY=[SUA_PUBLISHABLE_KEY]
 
-VITE_SUPABASE_URL=https://cpzxslaufhomqxksyrwt.supabase.co
-VITE_SUPABASE_ANON_KEY=sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
+VITE_SUPABASE_URL=[SUA_URL_DO_SUPABASE]
+VITE_SUPABASE_ANON_KEY=[SUA_PUBLISHABLE_KEY]
 ```
 
 ---
@@ -80,4 +80,5 @@ VITE_SUPABASE_ANON_KEY=sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi
 ## ✅ Pronto!
 
 Configure essas variáveis e faça deploy! 🚀
+
 

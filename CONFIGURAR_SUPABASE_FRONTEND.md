@@ -116,3 +116,5 @@ USING (auth.role() = 'authenticated');
 
 **Pronto! Frontend conectado diretamente ao Supabase! ✅**
 
+
+

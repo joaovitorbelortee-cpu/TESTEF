@@ -14,8 +14,8 @@ if (typeof window !== 'undefined' && !import.meta.env.DEV) {
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Variáveis do Supabase não configuradas no frontend.');
   console.error('Configure no Netlify:');
-  console.error('  VITE_SUPABASE_URL = https://cpzxslaufhomqxksyrwt.supabase.co');
-  console.error('  VITE_SUPABASE_ANON_KEY = sb_publishable_fHaiFGOVYvIy8iP-P6vNNg_2uFoQnAi');
+  console.error('  VITE_SUPABASE_URL = [sua-url-do-supabase]');
+  console.error('  VITE_SUPABASE_ANON_KEY = [sua-chave-anon]');
 }
 
 export const supabase = supabaseUrl && supabaseAnonKey

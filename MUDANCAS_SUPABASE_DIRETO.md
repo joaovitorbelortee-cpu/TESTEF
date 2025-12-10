@@ -112,3 +112,5 @@ VITE_SUPABASE_ANON_KEY=sua-chave-anon
 
 **Mudanças concluídas! ✅**
 
+
+

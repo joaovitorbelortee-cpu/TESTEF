@@ -180,3 +180,5 @@ Se o Netlify continuar dando problema, o Vercel é mais fácil para projetos Rea
 
 **Precisa de mais ajuda? Verifique os logs de build no Netlify!**
 
+
+
