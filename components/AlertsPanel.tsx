@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Bell, 
-  Clock, 
+import {
+  Bell,
+  Clock,
   MessageCircle,
   RefreshCw,
   AlertTriangle,
@@ -402,6 +402,8 @@ const styles = `
   }
 `;
 
+import { API_BASE_URL } from '../utils/apiConfig';
+
 interface ExpiringAccountExtended extends ExpiringAccount {
   client_name: string;
   client_whatsapp: string;
@@ -435,8 +437,7 @@ export default function AlertsPanel() {
 
   const loadPendingRenewalAccounts = async () => {
     try {
-      const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-      const response = await fetch(`${API_URL}/accounts/status/pending-renewal`);
+      const response = await fetch(`${API_BASE_URL}/accounts/status/pending-renewal`);
       const data = await response.json();
       setPendingRenewalAccounts(data);
     } catch (error) {
@@ -446,8 +447,7 @@ export default function AlertsPanel() {
 
   const loadExpired = async () => {
     try {
-      const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-      const response = await fetch(`${API_URL}/accounts/status/expired`);
+      const response = await fetch(`${API_BASE_URL}/accounts/status/expired`);
       const data = await response.json();
       setExpiredAccounts(data);
     } catch (error) {
@@ -470,7 +470,7 @@ export default function AlertsPanel() {
   const openWhatsApp = (phone: string, name: string, daysLeft: number) => {
     const cleanPhone = phone.replace(/\D/g, '');
     let message = '';
-    
+
     if (daysLeft <= 1) {
       message = `Olá ${name}! 😊
 
@@ -486,7 +486,7 @@ Passando pra avisar que sua conta GamePass vence em ${daysLeft} dias! 🎮
 
 Quer garantir a renovação com desconto? Me avisa que te passo as condições especiais! 🔥`;
     }
-    
+
     window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -494,7 +494,7 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
     const message = daysLeft <= 1
       ? `Olá ${name}! Vi que sua conta GamePass vence ${daysLeft === 0 ? 'hoje' : 'amanhã'}. Quer renovar com desconto?`
       : `Olá ${name}! Sua conta GamePass vence em ${daysLeft} dias. Quer garantir a renovação com desconto?`;
-    
+
     await navigator.clipboard.writeText(message);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -513,7 +513,7 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
             <h1 className="alerts-title">Alertas de Renovação</h1>
             <p className="alerts-subtitle">Clientes com contas próximas do vencimento</p>
           </div>
-          
+
           <button className="btn btn-secondary" onClick={loadAlerts}>
             <RefreshCw size={18} />
             Atualizar
@@ -627,55 +627,55 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
               </div>
             ) : (
               <div className="alerts-list">
-            {expiringAccounts.map((account) => {
-              const urgency = getUrgencyLevel(account.days_left);
-              
-              return (
-                <div key={account.id} className={`alert-card ${urgency}`}>
-                  <div className={`alert-icon ${urgency}`}>
-                    {urgency === 'urgent' ? <AlertTriangle size={24} /> : <Clock size={24} />}
-                  </div>
-                  
-                  <div className="alert-content">
-                    <div className="alert-header">
-                      <span className="alert-name">{account.client_name}</span>
-                      <span className={`alert-badge ${urgency}`}>
-                        {getUrgencyLabel(account.days_left)}
-                      </span>
+                {expiringAccounts.map((account) => {
+                  const urgency = getUrgencyLevel(account.days_left);
+
+                  return (
+                    <div key={account.id} className={`alert-card ${urgency}`}>
+                      <div className={`alert-icon ${urgency}`}>
+                        {urgency === 'urgent' ? <AlertTriangle size={24} /> : <Clock size={24} />}
+                      </div>
+
+                      <div className="alert-content">
+                        <div className="alert-header">
+                          <span className="alert-name">{account.client_name}</span>
+                          <span className={`alert-badge ${urgency}`}>
+                            {getUrgencyLabel(account.days_left)}
+                          </span>
+                        </div>
+
+                        <div className="alert-details">
+                          <span className="alert-detail">
+                            📧 {account.email}
+                          </span>
+                          <span className="alert-detail">
+                            📅 Vence: {new Date(account.expiry_date).toLocaleDateString('pt-BR')}
+                          </span>
+                          <span className="alert-detail">
+                            📱 {account.client_whatsapp}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="alert-actions">
+                        <button
+                          className="alert-btn copy"
+                          onClick={() => copyMessage(account.id, account.client_name, account.days_left)}
+                        >
+                          {copiedId === account.id ? <Check size={16} /> : <Copy size={16} />}
+                          {copiedId === account.id ? 'Copiado!' : 'Copiar'}
+                        </button>
+                        <button
+                          className="alert-btn whatsapp"
+                          onClick={() => openWhatsApp(account.client_whatsapp, account.client_name, account.days_left)}
+                        >
+                          <MessageCircle size={16} />
+                          WhatsApp
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div className="alert-details">
-                      <span className="alert-detail">
-                        📧 {account.email}
-                      </span>
-                      <span className="alert-detail">
-                        📅 Vence: {new Date(account.expiry_date).toLocaleDateString('pt-BR')}
-                      </span>
-                      <span className="alert-detail">
-                        📱 {account.client_whatsapp}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="alert-actions">
-                    <button 
-                      className="alert-btn copy"
-                      onClick={() => copyMessage(account.id, account.client_name, account.days_left)}
-                    >
-                      {copiedId === account.id ? <Check size={16} /> : <Copy size={16} />}
-                      {copiedId === account.id ? 'Copiado!' : 'Copiar'}
-                    </button>
-                    <button 
-                      className="alert-btn whatsapp"
-                      onClick={() => openWhatsApp(account.client_whatsapp, account.client_name, account.days_left)}
-                    >
-                      <MessageCircle size={16} />
-                      WhatsApp
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
               </div>
             )}
           </>
@@ -710,80 +710,80 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
               </div>
             ) : (
               <div className="alerts-list">
-              {pendingRenewalAccounts.map((account: any) => {
-                const daysExpired = account.days_expired || 0;
-                return (
-                  <div key={account.id} className="alert-item urgent">
-                    <div className="alert-content">
-                      <div className="alert-header">
-                        <span className="alert-name">{account.client_name}</span>
-                        <span className="alert-badge urgent">
-                          {daysExpired > 0 ? `Expirada há ${daysExpired} dia${daysExpired !== 1 ? 's' : ''}` : 'Expirada hoje'}
-                        </span>
+                {pendingRenewalAccounts.map((account: any) => {
+                  const daysExpired = account.days_expired || 0;
+                  return (
+                    <div key={account.id} className="alert-item urgent">
+                      <div className="alert-content">
+                        <div className="alert-header">
+                          <span className="alert-name">{account.client_name}</span>
+                          <span className="alert-badge urgent">
+                            {daysExpired > 0 ? `Expirada há ${daysExpired} dia${daysExpired !== 1 ? 's' : ''}` : 'Expirada hoje'}
+                          </span>
+                        </div>
+
+                        <div className="alert-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                          <div style={{
+                            background: 'rgba(57, 255, 20, 0.1)',
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(57, 255, 20, 0.3)'
+                          }}>
+                            <div style={{ fontWeight: 600, color: '#39ff14', fontSize: '13px', marginBottom: '4px' }}>
+                              🎮 CONTA GAMEPASS
+                            </div>
+                            <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace' }}>
+                              {account.email}
+                            </div>
+                          </div>
+                          <div style={{
+                            background: 'rgba(37, 211, 102, 0.1)',
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(37, 211, 102, 0.3)'
+                          }}>
+                            <div style={{ fontWeight: 600, color: '#25d366', fontSize: '13px', marginBottom: '4px' }}>
+                              📱 CONTATO WHATSAPP
+                            </div>
+                            <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace' }}>
+                              {account.client_whatsapp || 'Não informado'}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#6a6a7a', marginTop: '4px' }}>
+                            <span>📅 Venceu: {new Date(account.expiry_date).toLocaleDateString('pt-BR')}</span>
+                            <span>💰 R$ {account.sale_price?.toFixed(2) || '0.00'}</span>
+                          </div>
+                        </div>
                       </div>
-                      
-                      <div className="alert-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                        <div style={{ 
-                          background: 'rgba(57, 255, 20, 0.1)', 
-                          padding: '10px', 
-                          borderRadius: '8px', 
-                          border: '1px solid rgba(57, 255, 20, 0.3)' 
-                        }}>
-                          <div style={{ fontWeight: 600, color: '#39ff14', fontSize: '13px', marginBottom: '4px' }}>
-                            🎮 CONTA GAMEPASS
-                          </div>
-                          <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace' }}>
-                            {account.email}
-                          </div>
-                        </div>
-                        <div style={{ 
-                          background: 'rgba(37, 211, 102, 0.1)', 
-                          padding: '10px', 
-                          borderRadius: '8px', 
-                          border: '1px solid rgba(37, 211, 102, 0.3)' 
-                        }}>
-                          <div style={{ fontWeight: 600, color: '#25d366', fontSize: '13px', marginBottom: '4px' }}>
-                            📱 CONTATO WHATSAPP
-                          </div>
-                          <div style={{ color: '#fff', fontSize: '14px', fontFamily: 'monospace' }}>
-                            {account.client_whatsapp || 'Não informado'}
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#6a6a7a', marginTop: '4px' }}>
-                          <span>📅 Venceu: {new Date(account.expiry_date).toLocaleDateString('pt-BR')}</span>
-                          <span>💰 R$ {account.sale_price?.toFixed(2) || '0.00'}</span>
-                        </div>
+
+                      <div className="alert-actions">
+                        <button
+                          className="alert-btn copy"
+                          onClick={() => {
+                            const message = `Olá ${account.client_name}! Tudo bem? 😊\n\nSua conta GamePass Ultimate venceu e precisa ser renovada! 🎮\n\nComo você é cliente fiel, tenho condições especiais:\n✅ Mesma conta, sem perder saves\n✅ Desconto exclusivo: R$59 (era R$69)\n✅ Entrega imediata após pagamento\n\nQuer garantir? Me avisa que já te passo o PIX! 🔥`;
+                            navigator.clipboard.writeText(message);
+                            setCopiedId(account.id);
+                            setTimeout(() => setCopiedId(null), 2000);
+                          }}
+                        >
+                          {copiedId === account.id ? <Check size={16} /> : <Copy size={16} />}
+                          {copiedId === account.id ? 'Copiado!' : 'Copiar'}
+                        </button>
+                        <button
+                          className="alert-btn whatsapp"
+                          onClick={() => {
+                            const cleanPhone = account.client_whatsapp?.replace(/\D/g, '') || '';
+                            const message = encodeURIComponent(`Olá ${account.client_name}! Tudo bem? 😊\n\nSua conta GamePass Ultimate venceu e precisa ser renovada! 🎮\n\nComo você é cliente fiel, tenho condições especiais:\n✅ Mesma conta, sem perder saves\n✅ Desconto exclusivo: R$59 (era R$69)\n✅ Entrega imediata após pagamento\n\nQuer garantir? Me avisa que já te passo o PIX! 🔥`);
+                            window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
+                          }}
+                        >
+                          <MessageCircle size={16} />
+                          WhatsApp
+                        </button>
                       </div>
                     </div>
-                    
-                    <div className="alert-actions">
-                      <button 
-                        className="alert-btn copy"
-                        onClick={() => {
-                          const message = `Olá ${account.client_name}! Tudo bem? 😊\n\nSua conta GamePass Ultimate venceu e precisa ser renovada! 🎮\n\nComo você é cliente fiel, tenho condições especiais:\n✅ Mesma conta, sem perder saves\n✅ Desconto exclusivo: R$59 (era R$69)\n✅ Entrega imediata após pagamento\n\nQuer garantir? Me avisa que já te passo o PIX! 🔥`;
-                          navigator.clipboard.writeText(message);
-                          setCopiedId(account.id);
-                          setTimeout(() => setCopiedId(null), 2000);
-                        }}
-                      >
-                        {copiedId === account.id ? <Check size={16} /> : <Copy size={16} />}
-                        {copiedId === account.id ? 'Copiado!' : 'Copiar'}
-                      </button>
-                      <button 
-                        className="alert-btn whatsapp"
-                        onClick={() => {
-                          const cleanPhone = account.client_whatsapp?.replace(/\D/g, '') || '';
-                          const message = encodeURIComponent(`Olá ${account.client_name}! Tudo bem? 😊\n\nSua conta GamePass Ultimate venceu e precisa ser renovada! 🎮\n\nComo você é cliente fiel, tenho condições especiais:\n✅ Mesma conta, sem perder saves\n✅ Desconto exclusivo: R$59 (era R$69)\n✅ Entrega imediata após pagamento\n\nQuer garantir? Me avisa que já te passo o PIX! 🔥`);
-                          window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
-                        }}
-                      >
-                        <MessageCircle size={16} />
-                        WhatsApp
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -829,13 +829,13 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
                             {daysExpired > 0 ? `Expirada há ${daysExpired} dia${daysExpired !== 1 ? 's' : ''}` : 'Expirada hoje'}
                           </span>
                         </div>
-                        
+
                         <div className="alert-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                          <div style={{ 
-                            background: 'rgba(239, 68, 68, 0.1)', 
-                            padding: '10px', 
-                            borderRadius: '8px', 
-                            border: '1px solid rgba(239, 68, 68, 0.3)' 
+                          <div style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(239, 68, 68, 0.3)'
                           }}>
                             <div style={{ fontWeight: 600, color: '#ef4444', fontSize: '13px', marginBottom: '4px' }}>
                               🎮 CONTA GAMEPASS
@@ -864,7 +864,7 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
             <span className="template-title">💡 Dica: Mensagem de Renovação</span>
           </div>
           <div className="template-text">
-{`Olá [NOME]! Tudo bem? 😊
+            {`Olá [NOME]! Tudo bem? 😊
 
 Passando pra avisar que sua conta GamePass Ultimate vence em [X] dias! 🎮
 
