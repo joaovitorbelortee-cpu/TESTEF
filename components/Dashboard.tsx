@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  TrendingUp, 
-  Package, 
-  Users, 
+import {
+  TrendingUp,
+  Package,
+  Users,
   AlertTriangle,
   DollarSign,
   ShoppingCart,
@@ -408,26 +408,26 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       setError('');
       console.log('🔄 Carregando dashboard...');
       console.log('🔗 API URL:', import.meta.env.VITE_API_URL || 'http://localhost:3001/api');
-      
+
       const result = await dashboardAPI.get() as DashboardData;
       console.log('✅ Dashboard carregado:', result);
       setData(result);
     } catch (err: any) {
       console.error('❌ Erro ao carregar dashboard:', err);
-      
+
       // Mensagem de erro mais específica
       let errorMessage = 'Erro ao carregar dashboard';
-      
+
       if (err.message?.includes('Unexpected token') || err.message?.includes('JSON') || err.message?.includes('HTML')) {
-        errorMessage = 'A API retornou HTML ao invés de JSON. Configure VITE_API_URL no Netlify apontando para o backend no Vercel.';
+        errorMessage = 'A API retornou HTML ao invés de JSON. Verifique se a Netlify Function está configurada corretamente.';
       } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
-        errorMessage = 'Erro ao conectar com o servidor. Verifique se o backend está rodando no Vercel.';
+        errorMessage = 'Erro ao conectar com o servidor. O backend pode estar iniciando (cold boot). Aguarde alguns segundos e tente novamente.';
       } else if (err.message?.includes('404')) {
         errorMessage = 'Endpoint não encontrado. Verifique a URL da API.';
       } else if (err.message) {
         errorMessage = `Erro: ${err.message}`;
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -446,13 +446,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
+
     if (diffMins < 1) return 'Agora';
     if (diffMins < 60) return `${diffMins}min atrás`;
-    
+
     const diffHours = Math.floor(diffMins / 60);
     if (diffHours < 24) return `${diffHours}h atrás`;
-    
+
     return date.toLocaleDateString('pt-BR');
   };
 
@@ -492,9 +492,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 <p style={{ fontSize: 12, color: '#6a6a7a' }}>
                   Para desenvolvimento local, execute:
                 </p>
-                <code style={{ 
-                  background: 'rgba(42, 42, 58, 0.8)', 
-                  padding: '8px 16px', 
+                <code style={{
+                  background: 'rgba(42, 42, 58, 0.8)',
+                  padding: '8px 16px',
                   borderRadius: '8px',
                   fontSize: 12,
                   color: '#10b981',
@@ -609,7 +609,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 Ver todas <ArrowUpRight size={14} />
               </button>
             </div>
-            
+
             {data.recentSales.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">
@@ -646,7 +646,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                   Ver todas <ArrowUpRight size={14} />
                 </button>
               </div>
-              
+
               {data.expiringAccounts.length === 0 ? (
                 <div className="empty-state" style={{ padding: 20 }}>
                   <p style={{ fontSize: 13 }}>Nenhuma conta vencendo nos próximos 7 dias 🎉</p>
@@ -663,7 +663,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                         Vence em {account.days_left} dia{account.days_left !== 1 ? 's' : ''}
                       </div>
                     </div>
-                    <button 
+                    <button
                       className="alert-action"
                       onClick={() => openWhatsApp(account.client_whatsapp, account.client_name)}
                     >
@@ -683,7 +683,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                   Gerenciar <ArrowUpRight size={14} />
                 </button>
               </div>
-              
+
               <div className="stock-grid">
                 <div className="stock-item available">
                   <div className="stock-value">{data.stock.available}</div>
