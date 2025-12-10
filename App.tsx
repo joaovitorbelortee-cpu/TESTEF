@@ -381,125 +381,124 @@ function AdminApp() {
         }
       } catch (error) {
         console.error('Erro ao verificar alertas:', error);
+        setAlertCount(0);
       }
     };
 
     checkAlerts();
-  })
-    .catch(() => setAlertCount(0));
-}, [activeTab]);
+  }, [activeTab]);
 
-const navItems = [
-  { id: 'dashboard' as TabType, label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'accounts' as TabType, label: 'Contas', icon: Package },
-  { id: 'clients' as TabType, label: 'Clientes', icon: Users },
-  { id: 'sales' as TabType, label: 'Vendas', icon: ShoppingCart },
-  { id: 'alerts' as TabType, label: 'Alertas', icon: Bell, badge: alertCount },
-];
+  const navItems = [
+    { id: 'dashboard' as TabType, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'accounts' as TabType, label: 'Contas', icon: Package },
+    { id: 'clients' as TabType, label: 'Clientes', icon: Users },
+    { id: 'sales' as TabType, label: 'Vendas', icon: ShoppingCart },
+    { id: 'alerts' as TabType, label: 'Alertas', icon: Bell, badge: alertCount },
+  ];
 
-const handleNavClick = (tabId: TabType) => {
-  setActiveTab(tabId);
-  setMobileMenuOpen(false);
-};
+  const handleNavClick = (tabId: TabType) => {
+    setActiveTab(tabId);
+    setMobileMenuOpen(false);
+  };
 
-const renderContent = () => {
-  switch (activeTab) {
-    case 'dashboard':
-      return <Dashboard onNavigate={setActiveTab} />;
-    case 'accounts':
-      return <AccountsManager />;
-    case 'clients':
-      return <ClientsManager />;
-    case 'sales':
-      return <SalesManager />;
-    case 'alerts':
-      return <AlertsPanel />;
-    default:
-      return <Dashboard onNavigate={setActiveTab} />;
-  }
-};
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard onNavigate={setActiveTab} />;
+      case 'accounts':
+        return <AccountsManager />;
+      case 'clients':
+        return <ClientsManager />;
+      case 'sales':
+        return <SalesManager />;
+      case 'alerts':
+        return <AlertsPanel />;
+      default:
+        return <Dashboard onNavigate={setActiveTab} />;
+    }
+  };
 
-return (
-  <>
-    <style>{styles}</style>
-    <div className="app-container">
-      {/* Background Animado */}
-      <div className="animated-bg">
-        <div className="bg-grid"></div>
-        <div className="orb orb-1"></div>
-        <div className="orb orb-2"></div>
-        <div className="orb orb-3"></div>
-      </div>
-
-      {/* Mobile Header */}
-      <div className="mobile-header">
-        <button className="menu-btn" onClick={() => setMobileMenuOpen(true)}>
-          <Menu size={24} />
-        </button>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '12px', fontWeight: 600, color: '#fff', textTransform: 'uppercase', letterSpacing: '1.5px', textAlign: 'center' }}>
-            ASSINALIVEBR
-          </div>
-          <span className="logo-text" style={{ fontSize: '16px' }}>
-            Game<span>Pass</span>
-          </span>
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="app-container">
+        {/* Background Animado */}
+        <div className="animated-bg">
+          <div className="bg-grid"></div>
+          <div className="orb orb-1"></div>
+          <div className="orb orb-2"></div>
+          <div className="orb orb-3"></div>
         </div>
-        <div style={{ width: 40 }} />
-      </div>
 
-      {/* Overlay */}
-      <div
-        className={`overlay ${mobileMenuOpen ? 'show' : ''}`}
-        onClick={() => setMobileMenuOpen(false)}
-      />
-
-      {/* Sidebar */}
-      <aside className={`sidebar ${mobileMenuOpen ? 'mobile-visible' : ''}`}>
-        <div className="logo-area">
-          <div className="logo-brand">ASSINALIVEBR</div>
-          <div className="logo-text">
-            Game<span>Pass</span>
-          </div>
-          <button
-            className="menu-btn"
-            onClick={() => setMobileMenuOpen(false)}
-            style={{ position: 'absolute', top: 0, right: 0, display: mobileMenuOpen ? 'block' : 'none' }}
-          >
-            <X size={20} />
+        {/* Mobile Header */}
+        <div className="mobile-header">
+          <button className="menu-btn" onClick={() => setMobileMenuOpen(true)}>
+            <Menu size={24} />
           </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '12px', fontWeight: 600, color: '#fff', textTransform: 'uppercase', letterSpacing: '1.5px', textAlign: 'center' }}>
+              ASSINALIVEBR
+            </div>
+            <span className="logo-text" style={{ fontSize: '16px' }}>
+              Game<span>Pass</span>
+            </span>
+          </div>
+          <div style={{ width: 40 }} />
         </div>
 
-        <nav className="nav-menu">
-          {navItems.map((item) => (
+        {/* Overlay */}
+        <div
+          className={`overlay ${mobileMenuOpen ? 'show' : ''}`}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+
+        {/* Sidebar */}
+        <aside className={`sidebar ${mobileMenuOpen ? 'mobile-visible' : ''}`}>
+          <div className="logo-area">
+            <div className="logo-brand">ASSINALIVEBR</div>
+            <div className="logo-text">
+              Game<span>Pass</span>
+            </div>
             <button
-              key={item.id}
-              className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => handleNavClick(item.id)}
+              className="menu-btn"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ position: 'absolute', top: 0, right: 0, display: mobileMenuOpen ? 'block' : 'none' }}
             >
-              <item.icon size={20} />
-              {item.label}
-              {item.badge && item.badge > 0 && (
-                <span className="nav-badge">{item.badge}</span>
-              )}
+              <X size={20} />
             </button>
-          ))}
-        </nav>
+          </div>
 
-        <div className="sidebar-footer">
-          <button className="logout-btn">
-            <LogOut size={20} />
-            Sair
-          </button>
-        </div>
-      </aside>
+          <nav className="nav-menu">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+                onClick={() => handleNavClick(item.id)}
+              >
+                <item.icon size={20} />
+                {item.label}
+                {item.badge && item.badge > 0 && (
+                  <span className="nav-badge">{item.badge}</span>
+                )}
+              </button>
+            ))}
+          </nav>
 
-      {/* Main Content */}
-      <main className="main-content">
-        {renderContent()}
-      </main>
-    </div>
-  </>
-);
+          <div className="sidebar-footer">
+            <button className="logout-btn">
+              <LogOut size={20} />
+              Sair
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="main-content">
+          {renderContent()}
+        </main>
+      </div>
+    </>
+  );
 }
 
 export default function App() {
