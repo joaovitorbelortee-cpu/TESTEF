@@ -659,7 +659,7 @@ Quer garantir a renovação com desconto? Me avisa que te passo as condições e
                 <div className="empty-state-icon">
                   <CheckCircle size={36} />
                 </div>
-                <h3 style={{ color: '#fff', marginBottom: 8 }}>Tudo certo! 🎉</h3>
+                <h3 className="text-white mb-8">Tudo certo! 🎉</h3>
                 <p>Nenhuma conta vencendo nos próximos 7 dias</p>
               </div>
             ) : (
