@@ -1,4 +1,5 @@
 // Configuração do Supabase
+import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -8,7 +9,7 @@ if (!supabaseUrl || !supabaseKey) {
   console.warn('⚠️  Variáveis do Supabase não configuradas. Usando banco JSON local.');
 }
 
-export const supabase = supabaseUrl && supabaseKey 
+export const supabase = supabaseUrl && supabaseKey
   ? createClient(supabaseUrl, supabaseKey)
   : null;
 

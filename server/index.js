@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 import express from 'express';
 import cors from 'cors';
 // Tenta usar Supabase, se não estiver configurado, usa JSON
