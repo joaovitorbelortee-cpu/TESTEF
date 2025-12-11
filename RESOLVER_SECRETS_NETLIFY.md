@@ -89,3 +89,4 @@ Se quiser manter o scanner ativo mas ignorar arquivos específicos:
 **Pronto! O deploy deve funcionar agora! 🎉**
 
 
+
