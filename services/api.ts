@@ -89,17 +89,17 @@ export const dashboardAPI = {
         })),
         today: {
           revenue: todaySales.reduce((sum, a) => sum + (a.price || 0), 0),
-          sales: todaySales.length,
+          count: todaySales.length,
           profit: 0
         },
         week: {
           revenue: weekSales.reduce((sum, a) => sum + (a.price || 0), 0),
-          sales: weekSales.length,
+          count: weekSales.length,
           profit: 0
         },
         month: {
           revenue: monthSales.reduce((sum, a) => sum + (a.price || 0), 0),
-          sales: monthSales.length,
+          count: monthSales.length,
           profit: 0
         },
         stock: {
