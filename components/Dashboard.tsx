@@ -449,7 +449,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       console.log('🔄 Carregando dashboard...');
       console.log('🔗 API URL:', import.meta.env.VITE_API_URL || 'http://localhost:3001/api');
 
-      const result = await dashboardAPI.get() as DashboardData;
+      const result = await dashboardAPI.getMetrics() as DashboardData;
       console.log('✅ Dashboard carregado:', result);
       setData(result);
     } catch (err: any) {

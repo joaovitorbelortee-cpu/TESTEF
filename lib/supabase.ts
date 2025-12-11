@@ -25,9 +25,12 @@ export type Account = {
 export type Client = {
     id: string;
     name: string;
-    email: string;
+    email?: string;
     phone?: string;
+    whatsapp?: string;
+    tag?: string;
     cpf?: string;
+    notes?: string;
     created_at: string;
     updated_at: string;
 };

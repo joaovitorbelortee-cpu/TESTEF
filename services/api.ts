@@ -414,7 +414,22 @@ export const salesAPI = {
       throw error;
     }
   },
+
+  // Métodos de compatibilidade
+  async list() {
+    return this.getAll();
+  },
+
+  async delete(id: string) {
+    // Estornar venda = voltar conta para 'available'
+    return accountsAPI.update(id, {
+      status: 'available',
+      sold_date: undefined,
+      client_id: undefined,
+    });
+  },
 };
+
 
 // Exportar tudo
 export default {
