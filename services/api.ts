@@ -23,10 +23,22 @@ export const dashboardAPI = {
       if (clientsError) throw clientsError;
 
       const today = new Date().toISOString().split('T')[0];
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       // Calcular métricas
       const soldAccounts = accounts?.filter(a => a.status === 'sold') || [];
       const todaySales = accounts?.filter(a => a.sold_date?.startsWith(today)) || [];
+      const weekSales = accounts?.filter(a => {
+        const saleDate = new Date(a.sold_date || 0);
+        return saleDate >= sevenDaysAgo;
+      }) || [];
+      const monthSales = accounts?.filter(a => {
+        const saleDate = new Date(a.sold_date || 0);
+        return saleDate >= thirtyDaysAgo;
+      }) || [];
 
       // Vendas recentes (últimas 5)
       const recentSales = soldAccounts
@@ -60,6 +72,29 @@ export const dashboardAPI = {
         expiredAccounts: accounts?.filter(a => a.status === 'expired').length || 0,
         recentSales,
         expiringAccounts: expiringAccounts.length,
+        // Campos adicionais para compatibilidade
+        today: {
+          revenue: todaySales.reduce((sum, a) => sum + (a.price || 0), 0),
+          sales: todaySales.length,
+        },
+        week: {
+          revenue: weekSales.reduce((sum, a) => sum + (a.price || 0), 0),
+          sales: weekSales.length,
+        },
+        month: {
+          revenue: monthSales.reduce((sum, a) => sum + (a.price || 0), 0),
+          sales: monthSales.length,
+        },
+        stock: {
+          available: accounts?.filter(a => a.status === 'available').length || 0,
+          sold: soldAccounts.length,
+          expired: accounts?.filter(a => a.status === 'expired').length || 0,
+          total: accounts?.length || 0,
+        },
+        alerts: {
+          expiring: expiringAccounts.length,
+          expired: accounts?.filter(a => a.status === 'expired').length || 0,
+        },
       };
     } catch (error) {
       console.error('Erro ao buscar métricas:', error);
@@ -133,12 +168,12 @@ export const accountsAPI = {
     }
   },
 
-  async update(id: string, updates: Partial<Account>) {
+  async update(id: string | number, updates: Partial<Account>) {
     try {
       const { data, error } = await supabase
         .from('accounts')
         .update(updates)
-        .eq('id', id)
+        .eq('id', String(id))
         .select()
         .single();
 
@@ -242,12 +277,12 @@ export const clientsAPI = {
     }
   },
 
-  async getById(id: string) {
+  async getById(id: string | number) {
     try {
       const { data, error } = await supabase
         .from('clients')
         .select('*')
-        .eq('id', id)
+        .eq('id', String(id))
         .single();
 
       if (error) throw error;
@@ -274,12 +309,12 @@ export const clientsAPI = {
     }
   },
 
-  async update(id: string, updates: Partial<Client>) {
+  async update(id: string | number, updates: Partial<Client>) {
     try {
       const { data, error } = await supabase
         .from('clients')
         .update(updates)
-        .eq('id', id)
+        .eq('id', String(id))
         .select()
         .single();
 
@@ -291,12 +326,12 @@ export const clientsAPI = {
     }
   },
 
-  async delete(id: string) {
+  async delete(id: string | number) {
     try {
       const { error } = await supabase
         .from('clients')
         .delete()
-        .eq('id', id);
+        .eq('id', String(id));
 
       if (error) throw error;
     } catch (error) {
@@ -305,12 +340,12 @@ export const clientsAPI = {
     }
   },
 
-  async getWithAccounts(id: string) {
+  async getWithAccounts(id: string | number) {
     try {
       const { data, error } = await supabase
         .from('clients')
         .select('*, accounts(*)')
-        .eq('id', id)
+        .eq('id', String(id))
         .single();
 
       if (error) throw error;
@@ -429,7 +464,6 @@ export const salesAPI = {
     });
   },
 };
-
 
 // Exportar tudo
 export default {
