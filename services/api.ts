@@ -1,4 +1,3 @@
-// src/services/api.ts - SUBSTITUA TODO O CONTEÚDO POR ESTE
 import { supabase } from '@/lib/supabase';
 import type { Account, Client } from '@/lib/supabase';
 
@@ -62,6 +61,17 @@ export const dashboardAPI = {
         return renewalDate <= sevenDaysFromNow && renewalDate >= new Date();
       }) || [];
 
+      // Dados de vendas por dia (mock inicial para tipagem)
+      const salesByDay = [
+        { date: 'Seg', count: 0, revenue: 0, profit: 0 },
+        { date: 'Ter', count: 0, revenue: 0, profit: 0 },
+        { date: 'Qua', count: 0, revenue: 0, profit: 0 },
+        { date: 'Qui', count: 0, revenue: 0, profit: 0 },
+        { date: 'Sex', count: 0, revenue: 0, profit: 0 },
+        { date: 'Sáb', count: 0, revenue: 0, profit: 0 },
+        { date: 'Dom', count: 0, revenue: 0, profit: 0 }
+      ];
+
       return {
         totalRevenue: soldAccounts.reduce((sum, a) => sum + (a.price || 0), 0),
         todayRevenue: todaySales.reduce((sum, a) => sum + (a.price || 0), 0),
@@ -72,25 +82,36 @@ export const dashboardAPI = {
         expiredAccounts: accounts?.filter(a => a.status === 'expired').length || 0,
         recentSales,
         expiringAccounts: expiringAccounts.length,
-        // Campos adicionais para compatibilidade
+        // Campos adicionais para compatibilidade total com DashboardData
         today: {
+          count: todaySales.length,
           revenue: todaySales.reduce((sum, a) => sum + (a.price || 0), 0),
-          sales: todaySales.length,
+          profit: 0 // Placeholder
         },
         week: {
+          count: weekSales.length,
           revenue: weekSales.reduce((sum, a) => sum + (a.price || 0), 0),
-          sales: weekSales.length,
+          profit: 0 // Placeholder
         },
         month: {
+          count: monthSales.length,
           revenue: monthSales.reduce((sum, a) => sum + (a.price || 0), 0),
-          sales: monthSales.length,
+          profit: 0 // Placeholder
         },
         stock: {
           available: accounts?.filter(a => a.status === 'available').length || 0,
           sold: soldAccounts.length,
+          expiring: expiringAccounts.length,
           expired: accounts?.filter(a => a.status === 'expired').length || 0,
           total: accounts?.length || 0,
         },
+        clients: {
+          total: clientsCount || 0,
+          new: 0, // Placeholder
+          recurring: 0, // Placeholder
+          vip: 0 // Placeholder
+        },
+        salesByDay: salesByDay,
         alerts: {
           expiring: expiringAccounts.length,
           expired: accounts?.filter(a => a.status === 'expired').length || 0,
@@ -455,9 +476,9 @@ export const salesAPI = {
     return this.getAll();
   },
 
-  async delete(id: string) {
+  async delete(id: string | number) {
     // Estornar venda = voltar conta para 'available'
-    return accountsAPI.update(id, {
+    return accountsAPI.update(String(id), {
       status: 'available',
       sold_date: undefined,
       client_id: undefined,
