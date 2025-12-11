@@ -53,6 +53,14 @@ export interface Sale {
   account_expiry?: string;
 }
 
+export interface DashboardRecentSale {
+  id: number;
+  client_name?: string;
+  plan?: string;
+  sale_price: number;
+  created_at: string;
+}
+
 export interface DashboardData {
   today: {
     count: number;
@@ -83,7 +91,7 @@ export interface DashboardData {
     vip: number;
   };
   expiringAccounts: ExpiringAccount[];
-  recentSales: Sale[];
+  recentSales: DashboardRecentSale[];
   salesByDay: DailySales[];
 }
 

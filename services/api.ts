@@ -41,23 +41,10 @@ export const dashboardAPI = {
         .slice(0, 5)
         .map(account => ({
           id: account.id,
-          // Convert to number or 0 if null/undefined, matching strict types
-          client_id: Number(account.client_id) || 0,
-          account_id: account.id,
-          // Fix: 'clientName' -> 'client_name' to match Sale interface
           client_name: 'Cliente',
           plan: account.plan,
-          // Account specific fields mapped to Sale optional fields if needed, 
-          // or strictly matching Sale interface
           sale_price: account.price || 0,
-          cost: (account.price || 0) * 0.7,
-          profit: (account.price || 0) * 0.3,
-          // Fix: 'sale_date' property exists in Sale interface? types.ts says created_at is string
           created_at: account.sold_date || new Date().toISOString(),
-          // Fix: payment_method is required in Sale interface
-          payment_method: 'pix',
-          account_email: account.email,
-          account_password: account.password
         }));
 
       const sevenDaysFromNow = new Date();
