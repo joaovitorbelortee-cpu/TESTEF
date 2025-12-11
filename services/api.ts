@@ -195,6 +195,32 @@ export const accountsAPI = {
       throw error;
     }
   },
+
+  // Métodos de compatibilidade
+  async available() {
+    return this.getByStatus('available');
+  },
+
+  async expiring() {
+    try {
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .not('renewal_date', 'is', null)
+        .lte('renewal_date', sevenDaysFromNow.toISOString())
+        .gte('renewal_date', new Date().toISOString())
+        .order('renewal_date', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Erro ao buscar contas expirando:', error);
+      throw error;
+    }
+  },
 };
 
 // ==========================================
@@ -294,6 +320,11 @@ export const clientsAPI = {
       throw error;
     }
   },
+
+  // Métodos de compatibilidade
+  async list() {
+    return this.getAll();
+  },
 };
 
 // ==========================================
@@ -350,10 +381,46 @@ export const portalAPI = {
   },
 };
 
+// ==========================================
+// SALES API (Compatibilidade)
+// ==========================================
+export const salesAPI = {
+  async getAll() {
+    return accountsAPI.getByStatus('sold');
+  },
+
+  async create(saleData: any) {
+    // Venda = atualizar conta para 'sold' + adicionar client_id
+    return accountsAPI.update(saleData.accountId, {
+      status: 'sold',
+      sold_date: new Date().toISOString(),
+      client_id: saleData.clientId,
+    });
+  },
+
+  async getRecent(limit = 5) {
+    try {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*, client:clients(*)')
+        .eq('status', 'sold')
+        .order('sold_date', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Erro ao buscar vendas recentes:', error);
+      throw error;
+    }
+  },
+};
+
 // Exportar tudo
 export default {
   dashboard: dashboardAPI,
   accounts: accountsAPI,
   clients: clientsAPI,
   portal: portalAPI,
+  sales: salesAPI,
 };
