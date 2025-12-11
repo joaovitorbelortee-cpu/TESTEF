@@ -81,7 +81,6 @@ export const dashboardAPI = {
         pendingRenewal: accounts?.filter(a => a.status === 'pending-renewal').length || 0,
         expiredAccounts: accounts?.filter(a => a.status === 'expired').length || 0,
         recentSales,
-        recentSales,
         expiringAccounts: expiringAccounts.map(a => ({
           id: a.id,
           email: a.email,
