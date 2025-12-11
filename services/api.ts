@@ -81,7 +81,18 @@ export const dashboardAPI = {
         pendingRenewal: accounts?.filter(a => a.status === 'pending-renewal').length || 0,
         expiredAccounts: accounts?.filter(a => a.status === 'expired').length || 0,
         recentSales,
-        expiringAccounts: expiringAccounts.length,
+        recentSales,
+        expiringAccounts: expiringAccounts.map(a => ({
+          id: a.id,
+          email: a.email,
+          plan: a.plan,
+          // Use renewal_date (from DB) as expiry_date (for frontend)
+          expiry_date: a.renewal_date,
+          // Add default values for missing client info since we didn't join with client table here
+          client_name: 'Cliente',
+          client_whatsapp: '',
+          days_left: Math.ceil((new Date(a.renewal_date || 0).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+        })),
         // Campos adicionais para compatibilidade total com DashboardData
         today: {
           count: todaySales.length,
