@@ -7,14 +7,12 @@ import type { Account, Client } from '@/lib/supabase';
 export const dashboardAPI = {
   async getMetrics() {
     try {
-      // Buscar todas as contas
       const { data: accounts, error: accountsError } = await supabase
         .from('accounts')
         .select('*');
 
       if (accountsError) throw accountsError;
 
-      // Buscar total de clientes
       const { count: clientsCount, error: clientsError } = await supabase
         .from('clients')
         .select('id', { count: 'exact', head: true });
@@ -27,7 +25,6 @@ export const dashboardAPI = {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      // Calcular métricas
       const soldAccounts = accounts?.filter(a => a.status === 'sold') || [];
       const todaySales = accounts?.filter(a => a.sold_date?.startsWith(today)) || [];
       const weekSales = accounts?.filter(a => {
@@ -39,19 +36,30 @@ export const dashboardAPI = {
         return saleDate >= thirtyDaysAgo;
       }) || [];
 
-      // Vendas recentes (últimas 5)
       const recentSales = soldAccounts
         .sort((a, b) => new Date(b.sold_date || 0).getTime() - new Date(a.sold_date || 0).getTime())
         .slice(0, 5)
         .map(account => ({
           id: account.id,
-          clientName: 'Cliente', // Você pode fazer join com clients depois
+          // Convert to number or 0 if null/undefined, matching strict types
+          client_id: Number(account.client_id) || 0,
+          account_id: account.id,
+          // Fix: 'clientName' -> 'client_name' to match Sale interface
+          client_name: 'Cliente',
           plan: account.plan,
-          price: account.price,
-          date: account.sold_date,
+          // Account specific fields mapped to Sale optional fields if needed, 
+          // or strictly matching Sale interface
+          sale_price: account.price || 0,
+          cost: (account.price || 0) * 0.7,
+          profit: (account.price || 0) * 0.3,
+          // Fix: 'sale_date' property exists in Sale interface? types.ts says created_at is string
+          created_at: account.sold_date || new Date().toISOString(),
+          // Fix: payment_method is required in Sale interface
+          payment_method: 'pix',
+          account_email: account.email,
+          account_password: account.password
         }));
 
-      // Contas vencendo nos próximos 7 dias
       const sevenDaysFromNow = new Date();
       sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
 
@@ -61,7 +69,7 @@ export const dashboardAPI = {
         return renewalDate <= sevenDaysFromNow && renewalDate >= new Date();
       }) || [];
 
-      // Dados de vendas por dia (mock inicial para tipagem)
+      // Dados de vendas por dia (mock inicial para tipagem exigida por DashboardData)
       const salesByDay = [
         { date: 'Seg', count: 0, revenue: 0, profit: 0 },
         { date: 'Ter', count: 0, revenue: 0, profit: 0 },
@@ -83,30 +91,29 @@ export const dashboardAPI = {
         recentSales,
         expiringAccounts: expiringAccounts.map(a => ({
           id: a.id,
+          // ExpiringAccount interface requires email, expiry_date, client_name, etc.
           email: a.email,
           plan: a.plan,
-          // Use renewal_date (from DB) as expiry_date (for frontend)
-          expiry_date: a.renewal_date,
-          // Add default values for missing client info since we didn't join with client table here
-          client_name: 'Cliente',
+          // Fix: Map renewal_date to expiry_date as expected by interface
+          expiry_date: a.renewal_date || '',
+          client_name: 'Cliente', // Default since no join here
           client_whatsapp: '',
           days_left: Math.ceil((new Date(a.renewal_date || 0).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
         })),
-        // Campos adicionais para compatibilidade total com DashboardData
         today: {
-          count: todaySales.length,
           revenue: todaySales.reduce((sum, a) => sum + (a.price || 0), 0),
-          profit: 0 // Placeholder
+          sales: todaySales.length,
+          profit: 0
         },
         week: {
-          count: weekSales.length,
           revenue: weekSales.reduce((sum, a) => sum + (a.price || 0), 0),
-          profit: 0 // Placeholder
+          sales: weekSales.length,
+          profit: 0
         },
         month: {
-          count: monthSales.length,
           revenue: monthSales.reduce((sum, a) => sum + (a.price || 0), 0),
-          profit: 0 // Placeholder
+          sales: monthSales.length,
+          profit: 0
         },
         stock: {
           available: accounts?.filter(a => a.status === 'available').length || 0,
@@ -115,22 +122,27 @@ export const dashboardAPI = {
           expired: accounts?.filter(a => a.status === 'expired').length || 0,
           total: accounts?.length || 0,
         },
-        clients: {
-          total: clientsCount || 0,
-          new: 0, // Placeholder
-          recurring: 0, // Placeholder
-          vip: 0 // Placeholder
-        },
-        salesByDay: salesByDay,
         alerts: {
           expiring: expiringAccounts.length,
           expired: accounts?.filter(a => a.status === 'expired').length || 0,
         },
+        // Required by DashboardData interface
+        clients: {
+          total: clientsCount || 0,
+          new: 0,
+          recurring: 0,
+          vip: 0
+        },
+        salesByDay: salesByDay
       };
     } catch (error) {
       console.error('Erro ao buscar métricas:', error);
       throw error;
     }
+  },
+
+  async get() {
+    return this.getMetrics();
   },
 };
 
@@ -262,7 +274,6 @@ export const accountsAPI = {
     }
   },
 
-  // Métodos de compatibilidade
   async available() {
     return this.getByStatus('available');
   },
@@ -387,19 +398,17 @@ export const clientsAPI = {
     }
   },
 
-  // Métodos de compatibilidade
   async list() {
     return this.getAll();
   },
 };
 
 // ==========================================
-// PORTAL API (para clientes)
+// PORTAL API
 // ==========================================
 export const portalAPI = {
   async login(email: string, password: string) {
     try {
-      // Implementar autenticação real depois
       const { data, error } = await supabase
         .from('clients')
         .select('*')
@@ -448,7 +457,7 @@ export const portalAPI = {
 };
 
 // ==========================================
-// SALES API (Compatibilidade)
+// SALES API
 // ==========================================
 export const salesAPI = {
   async getAll() {
@@ -456,7 +465,6 @@ export const salesAPI = {
   },
 
   async create(saleData: any) {
-    // Venda = atualizar conta para 'sold' + adicionar client_id
     return accountsAPI.update(saleData.accountId, {
       status: 'sold',
       sold_date: new Date().toISOString(),
@@ -481,11 +489,7 @@ export const salesAPI = {
     }
   },
 
-  // Métodos de compatibilidade
-  async list() {
-    return this.getAll();
-  },
-
+  // Método Required by SalesManager.tsx
   async delete(id: string | number) {
     // Estornar venda = voltar conta para 'available'
     return accountsAPI.update(String(id), {
@@ -494,9 +498,13 @@ export const salesAPI = {
       client_id: undefined,
     });
   },
+
+  // Compatibility alias
+  async list() {
+    return this.getAll();
+  }
 };
 
-// Exportar tudo
 export default {
   dashboard: dashboardAPI,
   accounts: accountsAPI,
