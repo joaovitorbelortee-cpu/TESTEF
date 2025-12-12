@@ -11,53 +11,57 @@
   margin-top: 12px !important;
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* HUD Panel Styles (converted from Tailwind) */
+.hud-panel {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.5);
+}
 
-@layer utilities {
-  .hud-panel {
-    @apply bg-black/40 backdrop-blur-md border border-white/10 relative overflow-hidden;
-    /* Sombras sutis para profundidade */
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.5);
-  }
+/* Linha brilhante no topo */
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.5;
+}
 
-  /* Linha brilhante no topo */
-  .hud-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--primary), transparent);
-    opacity: 0.5;
-  }
+/* Canto técnico no rodapé direito */
+.hud-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border-bottom: 2px solid var(--primary);
+  border-right: 2px solid var(--primary);
+}
 
-  /* Canto técnico no rodapé direito */
-  .hud-panel::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 20px;
-    height: 20px;
-    border-bottom: 2px solid var(--primary);
-    border-right: 2px solid var(--primary);
-  }
+.hud-text {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: #6a6a7a;
+}
 
-  .hud-text {
-    @apply font-mono uppercase tracking-widest text-xs text-muted-foreground;
-  }
-
-  .neon-text {
-    text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
-  }
+.neon-text {
+  text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
 }
 
 :root {
   --primary: #10B981;
   --primary-foreground: #ffffff;
+  --muted-foreground: #6a6a7a;
 }
 
 /* Utilities */
@@ -150,6 +154,54 @@
 
 .p-20 {
   padding: 20px;
+}
+
+/* Tailwind-like utilities needed by components */
+.fixed {
+  position: fixed;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.top-0 {
+  top: 0;
+}
+
+.right-0 {
+  right: 0;
+}
+
+.z-0 {
+  z-index: 0;
+}
+
+.bg-black {
+  background-color: #000;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.opacity-80 {
+  opacity: 0.8;
+}
+
+.block {
+  display: block;
+}
+
+.hidden {
+  display: none;
 }
 
 /* Alert Box Styles */
