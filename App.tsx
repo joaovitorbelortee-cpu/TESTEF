@@ -8,7 +8,9 @@ import {
   LogOut,
   Menu,
   X,
-  RefreshCw
+  RefreshCw,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { dashboardAPI, portalAPI, accountsAPI } from './services/api';
 import Dashboard from './components/Dashboard';
@@ -17,7 +19,6 @@ import ClientsManager from './components/ClientsManager';
 import SalesManager from './components/SalesManager';
 import AlertsPanel from './components/AlertsPanel';
 import PortalApp from './portal/PortalApp';
-import { StarfieldBackground } from './components/StarfieldBackground';
 import type { TabType } from './types';
 
 const styles = `
@@ -29,6 +30,65 @@ const styles = `
     --silver: #e2e8f0;
     --glass-border: rgba(57, 255, 20, 0.15);
     --glass-shine: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Light mode overrides */
+  .app-container.light {
+    --dark-bg: #f5f5f5;
+    --panel-bg: rgba(255, 255, 255, 0.9);
+    --silver: #1a1a1a;
+    --glass-border: rgba(16, 124, 16, 0.2);
+    --glass-shine: rgba(0, 0, 0, 0.03);
+  }
+
+  .app-container.light .sidebar {
+    background: rgba(255, 255, 255, 0.95);
+    border-right-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .app-container.light .main-content {
+    background: #f0f0f0;
+  }
+
+  .app-container.light .nav-item {
+    color: #333;
+  }
+
+  .app-container.light .nav-item:hover {
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .app-container.light .logo-brand,
+  .app-container.light .mobile-header {
+    color: #333;
+  }
+
+  .theme-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--silver);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-top: 20px;
+  }
+
+  .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+  }
+
+  .app-container.light .theme-toggle {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .app-container.light .theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.1);
   }
 
   * {
@@ -372,6 +432,16 @@ function AdminApp() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [alertCount, setAlertCount] = useState(0);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('theme');
+    return (saved === 'light') ? 'light' : 'dark';
+  });
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
 
   useEffect(() => {
     const checkAlerts = async () => {
@@ -422,9 +492,7 @@ function AdminApp() {
   return (
     <>
       <style>{styles}</style>
-      <div className="app-container">
-        {/* Background Animado - Starfield */}
-        <StarfieldBackground />
+      <div className={`app-container ${theme}`}>
 
         {/* Mobile Header */}
         <div className="mobile-header">
@@ -487,6 +555,10 @@ function AdminApp() {
           </nav>
 
           <div className="sidebar-footer">
+            <button className="theme-toggle" onClick={toggleTheme} title={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}>
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+            </button>
             <button className="logout-btn">
               <LogOut size={20} />
               Sair
