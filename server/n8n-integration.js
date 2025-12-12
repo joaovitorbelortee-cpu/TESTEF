@@ -1,8 +1,8 @@
 // N8N Integration Service
 // Connects to GamePass Sales and Renewal Management System - v2
 
-const N8N_SALES_WEBHOOK = process.env.N8N_SALES_WEBHOOK || 'https://exclusiveboss.app.n8n.cloud/webhook/1b5a041f-0bd0-48c8-a942-fbce9aa593f9';
-const N8N_RENEWAL_WEBHOOK = process.env.N8N_RENEWAL_WEBHOOK || 'https://exclusiveboss.app.n8n.cloud/webhook/dce8cdf9-027d-4559-8f80-276f57a8c559';
+const N8N_SALES_WEBHOOK = process.env.N8N_SALES_WEBHOOK || 'https://exclusiveboss.app.n8n.cloud/webhook/new-sale';
+const N8N_RENEWAL_WEBHOOK = process.env.N8N_RENEWAL_WEBHOOK || 'https://exclusiveboss.app.n8n.cloud/webhook/renewal-confirmed';
 
 /**
  * Envia dados de uma nova venda/pagamento para o n8n
