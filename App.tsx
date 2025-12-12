@@ -461,9 +461,8 @@ function AdminApp() {
               Game<span>Pass</span>
             </div>
             <button
-              className="menu-btn absolute-top-right"
+              className={`menu-btn absolute top-0 right-0 ${mobileMenuOpen ? 'block' : 'hidden'}`}
               onClick={() => setMobileMenuOpen(false)}
-              style={{ position: 'absolute', top: 0, right: 0, display: mobileMenuOpen ? 'block' : 'none' }}
               title="Fechar menu"
               aria-label="Fechar menu"
             >

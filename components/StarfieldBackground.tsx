@@ -85,8 +85,7 @@ export function StarfieldBackground() {
     return (
         <canvas
             ref={canvasRef}
-            className="fixed inset-0 z-0 bg-black pointer-events-none"
-            style={{ opacity: 0.8 }}
+            className="fixed inset-0 z-0 bg-black pointer-events-none opacity-80"
         />
     );
 }
