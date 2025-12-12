@@ -487,6 +487,7 @@ export default function SalesManager() {
   const [formData, setFormData] = useState({
     client_id: '',
     client_name: '',
+    client_email: '',
     client_whatsapp: '',
     account_id: '',
     sale_price: '69',
@@ -558,6 +559,7 @@ export default function SalesManager() {
         payment_method: formData.payment_method,
         ...(formData.client_id ? { client_id: parseInt(formData.client_id) } : {
           client_name: formData.client_name,
+          client_email: formData.client_email,
           client_whatsapp: formData.client_whatsapp
         })
       };
@@ -585,6 +587,7 @@ export default function SalesManager() {
     setFormData({
       client_id: '',
       client_name: '',
+      client_email: '',
       client_whatsapp: '',
       account_id: '',
       sale_price: '69',
@@ -832,7 +835,7 @@ export default function SalesManager() {
                     </div>
 
                     {!formData.client_id && (
-                      <div className="form-row">
+                      <>
                         <div className="form-group">
                           <label className="form-label">Nome do Cliente</label>
                           <input
@@ -845,18 +848,32 @@ export default function SalesManager() {
                           />
                         </div>
 
-                        <div className="form-group">
-                          <label className="form-label">WhatsApp</label>
-                          <input
-                            type="text"
-                            className="form-input"
-                            value={formData.client_whatsapp}
-                            onChange={(e) => setFormData({ ...formData, client_whatsapp: e.target.value })}
-                            placeholder="11999999999"
-                            required={!formData.client_id}
-                          />
+                        <div className="form-row">
+                          <div className="form-group">
+                            <label className="form-label">Email</label>
+                            <input
+                              type="email"
+                              className="form-input"
+                              value={formData.client_email}
+                              onChange={(e) => setFormData({ ...formData, client_email: e.target.value })}
+                              placeholder="cliente@email.com"
+                              required={!formData.client_id}
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="form-label">WhatsApp</label>
+                            <input
+                              type="text"
+                              className="form-input"
+                              value={formData.client_whatsapp}
+                              onChange={(e) => setFormData({ ...formData, client_whatsapp: e.target.value })}
+                              placeholder="11999999999"
+                              required={!formData.client_id}
+                            />
+                          </div>
                         </div>
-                      </div>
+                      </>
                     )}
 
                     <div className="form-group">

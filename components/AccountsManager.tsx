@@ -10,7 +10,8 @@ import {
   EyeOff,
   Copy,
   Check,
-  MessageCircle
+  MessageCircle,
+  ShoppingCart
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import type { Account } from '../types';
@@ -270,6 +271,11 @@ const styles = `
   .action-btn.whatsapp:hover {
     background: rgba(37, 211, 102, 0.2);
     color: #25d366;
+  }
+
+  .action-btn.sell:hover {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
   }
   
   .account-modal-overlay {
@@ -735,6 +741,29 @@ export default function AccountsManager() {
     return status === 'sold' || status === 'expiring' || status === 'expired' || status === 'pending_renewal';
   };
 
+  const handleMarkAsSold = async (id: number) => {
+    if (!supabase) {
+      alert('Supabase não configurado');
+      return;
+    }
+
+    if (confirm('Marcar esta conta como vendida?\n\nIsso mudará o status para "Vendida".')) {
+      try {
+        const { error } = await supabase
+          .from('accounts')
+          .update({ status: 'sold' })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        loadAccounts();
+      } catch (error: any) {
+        console.error('Erro ao marcar como vendida:', error);
+        alert(error.message || 'Erro ao atualizar status');
+      }
+    }
+  };
+
   return (
     <>
       <style>{styles}</style>
@@ -890,6 +919,15 @@ export default function AccountsManager() {
                     </td>
                     <td>
                       <div className="actions-cell">
+                        {account.status === 'available' && (
+                          <button
+                            className="action-btn sell"
+                            onClick={() => handleMarkAsSold(account.id)}
+                            title="Marcar como Vendida"
+                          >
+                            <ShoppingCart size={14} />
+                          </button>
+                        )}
                         {isSoldAccount(account.status) && account.client_whatsapp && (
                           <button
                             className="action-btn whatsapp"
