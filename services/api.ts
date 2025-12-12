@@ -544,7 +544,6 @@ export const salesAPI = {
   async create(saleData: any) {
     return accountsAPI.update(saleData.accountId, {
       status: 'sold',
-      sold_date: new Date().toISOString(),
       client_id: saleData.clientId,
     });
   },
@@ -555,7 +554,7 @@ export const salesAPI = {
         .from('accounts')
         .select('*, client:clients(*)')
         .eq('status', 'sold')
-        .order('sold_date', { ascending: false })
+        .order('updated_at', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
@@ -571,7 +570,6 @@ export const salesAPI = {
     // Estornar venda = voltar conta para 'available'
     return accountsAPI.update(String(id), {
       status: 'available',
-      sold_date: undefined,
       client_id: undefined,
     });
   },
