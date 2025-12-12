@@ -1,5 +1,6 @@
 import express from 'express';
 import { db } from '../database.js';
+import { processSale, processRenewal } from '../n8n-integration.js';
 
 const router = express.Router();
 
@@ -101,6 +102,20 @@ router.put('/renew', async (req, res) => {
         payment_method: 'api-renewal'
       });
 
+      // Disparar webhook n8n para renovação
+      try {
+        await processRenewal({
+          client_id: client.id,
+          client_email: client.email,
+          client_name: client.name,
+          old_account_id: currentAccount?.id,
+          new_account_id: newAccount.id,
+          new_expiry_date: new_expiry_date
+        });
+      } catch (n8nError) {
+        console.error('[N8N] Error triggering renewal webhook:', n8nError);
+      }
+
       return res.json({
         success: true,
         message: 'Conta renovada com nova conta',
@@ -156,9 +171,24 @@ router.get('/:id', (req, res) => {
 });
 
 // Registrar nova venda
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const sale = db.createSale(req.body);
+
+    // Disparar webhook n8n para processar a venda
+    try {
+      await processSale({
+        sale_id: sale.id,
+        client_id: sale.client_id,
+        account_id: sale.account_id,
+        sale_price: sale.sale_price,
+        payment_method: sale.payment_method
+      });
+    } catch (n8nError) {
+      console.error('[N8N] Error triggering sale webhook:', n8nError);
+      // Não falhar a venda se o n8n falhar
+    }
+
     res.status(201).json(sale);
   } catch (error) {
     res.status(400).json({ error: error.message });
