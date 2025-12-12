@@ -17,6 +17,7 @@ import ClientsManager from './components/ClientsManager';
 import SalesManager from './components/SalesManager';
 import AlertsPanel from './components/AlertsPanel';
 import PortalApp from './portal/PortalApp';
+import { StarfieldBackground } from './components/StarfieldBackground';
 import type { TabType } from './types';
 
 const styles = `
@@ -422,13 +423,8 @@ function AdminApp() {
     <>
       <style>{styles}</style>
       <div className="app-container">
-        {/* Background Animado */}
-        <div className="animated-bg">
-          <div className="bg-grid"></div>
-          <div className="orb orb-1"></div>
-          <div className="orb orb-2"></div>
-          <div className="orb orb-3"></div>
-        </div>
+        {/* Background Animado - Starfield */}
+        <StarfieldBackground />
 
         {/* Mobile Header */}
         <div className="mobile-header">

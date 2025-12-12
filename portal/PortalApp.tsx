@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Login from './Login';
 import Register from './Register';
 import MyAccount from './MyAccount';
+import { portalAPI } from '../services/api';
 import './portal.css';
 
 type View = 'login' | 'register' | 'account';
@@ -30,17 +31,12 @@ export default function PortalApp() {
 
   const verifyToken = async (savedToken: string) => {
     try {
-      const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-      const response = await fetch(`${API_URL}/portal/verify`, {
-        headers: {
-          'Authorization': `Bearer ${savedToken}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
+      // Usar portalAPI em vez de fetch
+      const client = await portalAPI.verify(savedToken);
+
+      if (client) {
         setToken(savedToken);
-        setClient(data.client);
+        setClient(client);
         setView('account');
       } else {
         localStorage.removeItem('portal_token');
@@ -60,19 +56,7 @@ export default function PortalApp() {
   };
 
   const handleLogout = async () => {
-    if (token) {
-      try {
-        const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-        await fetch(`${API_URL}/portal/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-      } catch (error) {
-        // Ignora erro de logout
-      }
-    }
+    // Logout é local no nosso caso de uso simplificado
     localStorage.removeItem('portal_token');
     setToken(null);
     setClient(null);
@@ -107,15 +91,15 @@ export default function PortalApp() {
 
       <div className="portal-content">
         {view === 'login' && (
-          <Login 
-            onLogin={handleLogin} 
-            onRegister={() => setView('register')} 
+          <Login
+            onLogin={handleLogin}
+            onRegister={() => setView('register')}
           />
         )}
         {view === 'register' && (
-          <Register 
-            onSuccess={() => setView('login')} 
-            onBack={() => setView('login')} 
+          <Register
+            onSuccess={() => setView('login')}
+            onBack={() => setView('login')}
           />
         )}
         {view === 'account' && token && client && (

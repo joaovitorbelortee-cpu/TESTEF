@@ -11,6 +11,10 @@ CREATE TABLE IF NOT EXISTS accounts (
   cost DECIMAL(10, 2) DEFAULT 35.00,
   status TEXT NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'sold', 'expiring', 'expired', 'pending_renewal')),
   notes TEXT DEFAULT '',
+  -- Campos usados pelo app/n8n (Denormalização)
+  client_id BIGINT REFERENCES clients(id),
+  sold_date TIMESTAMPTZ,
+  renewal_date TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

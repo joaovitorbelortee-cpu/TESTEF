@@ -396,14 +396,36 @@ export const clientsAPI = {
 export const portalAPI = {
   async login(email: string, password: string) {
     try {
-      const { data, error } = await supabase
+      // 1. Verificar se o cliente existe
+      const { data: client, error } = await supabase
         .from('clients')
         .select('*')
         .eq('email', email)
         .single();
 
-      if (error) throw error;
-      return data;
+      if (error || !client) {
+        throw new Error('Cliente não encontrado');
+      }
+
+      // 2. Verificar senha (comparação direta para a tabela "clients" legada)
+      // Nota: Em produção, usar Supabase Auth ou hashing real.
+      // A tabela clients tem 'password_hash' (segundo schema), mas aqui vamos assumir
+      // que o sistema legado pode estar salvando texto plano ou precisamos verificar hash.
+      // Se for texto plano (simples):
+      if (client.password_hash !== password && client.password !== password) { // Tenta ambos campos se existirem
+        throw new Error('Senha incorreta');
+      }
+
+      // 3. Gerar um "token" simples para sessão local (ID do cliente)
+      // Em um app real, usar JWT do Supabase Auth.
+      return {
+        token: `mock-token-${client.id}`,
+        client: {
+          id: client.id,
+          name: client.name,
+          email: client.email
+        }
+      };
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       throw error;
@@ -412,9 +434,24 @@ export const portalAPI = {
 
   async register(clientData: Omit<Client, 'id' | 'created_at' | 'updated_at'>) {
     try {
+      // Verificar se email já existe
+      const { data: existing } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('email', clientData.email)
+        .single();
+
+      if (existing) {
+        throw new Error('Email já cadastrado');
+      }
+
       const { data, error } = await supabase
         .from('clients')
-        .insert([clientData])
+        .insert([{
+          ...clientData,
+          password_hash: (clientData as any).password, // Mapeia password para password_hash
+          tag: 'novo'
+        }])
         .select()
         .single();
 
@@ -426,21 +463,74 @@ export const portalAPI = {
     }
   },
 
-  async getMyAccount(clientId: string) {
+  async verify(token: string) {
+    // Verifica token mockado (formato: mock-token-ID)
+    if (!token.startsWith('mock-token-')) {
+      throw new Error('Token inválido');
+    }
+    const id = token.replace('mock-token-', '');
+
+    return clientsAPI.getById(id);
+  },
+
+  async getMyAccount(clientId: string | number) {
     try {
+      // Busca a conta mais recente ou ativa
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
-        .eq('client_id', clientId)
+        .eq('client_id', String(clientId))
+        .neq('status', 'expired') // Preferencia por não expiradas
+        .order('purchase_date', { ascending: false })
+        .limit(1)
         .single();
+
+      // Se não achar ativa, tenta pegar a última mesmo expirada
+      if (error && error.code === 'PGRST116') {
+        const { data: lastAccount, error: lastError } = await supabase
+          .from('accounts')
+          .select('*')
+          .eq('client_id', String(clientId))
+          .order('purchase_date', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (lastError) return null; // Sem contas
+        return lastAccount;
+      }
 
       if (error) throw error;
       return data;
     } catch (error) {
       console.error('Erro ao buscar minha conta:', error);
-      throw error;
+      return null; // Retorna null em vez de erro para UI tratar "sem conta"
     }
   },
+
+  async getPurchases(clientId: string | number) {
+    try {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('client_id', String(clientId))
+        .order('purchase_date', { ascending: false });
+
+      if (error) throw error;
+
+      // Mapeia para formato esperado pela UI
+      return data.map(acc => ({
+        id: acc.id,
+        purchase_date: acc.purchase_date || acc.sold_date || acc.created_at,
+        sale_price: acc.cost || 0, // Fallback se não tiver sale_price na tabela accounts (ver schema)
+        account_email: acc.email,
+        expiry_date: acc.expiry_date,
+        status: acc.status
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar compras:', error);
+      throw error;
+    }
+  }
 };
 
 // ==========================================

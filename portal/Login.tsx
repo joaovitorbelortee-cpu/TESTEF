@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { portalAPI } from '../services/api';
 
 interface LoginProps {
   onLogin: (token: string, client: { id: number; name: string; email: string }) => void;
@@ -17,24 +18,13 @@ export default function Login({ onLogin, onRegister }: LoginProps) {
     setLoading(true);
 
     try {
-      const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-      const response = await fetch(`${API_URL}/portal/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
+      // Usar portalAPI
+      const data = await portalAPI.login(email, password);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao fazer login');
-      }
-
+      // portalAPI.login já retorna o objeto esperado ou lança erro
       onLogin(data.token, data.client);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Erro ao fazer login');
     } finally {
       setLoading(false);
     }

@@ -11,6 +11,55 @@
   margin-top: 12px !important;
 }
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .hud-panel {
+    @apply bg-black/40 backdrop-blur-md border border-white/10 relative overflow-hidden;
+    /* Sombras sutis para profundidade */
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Linha brilhante no topo */
+  .hud-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    opacity: 0.5;
+  }
+
+  /* Canto técnico no rodapé direito */
+  .hud-panel::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    border-bottom: 2px solid var(--primary);
+    border-right: 2px solid var(--primary);
+  }
+
+  .hud-text {
+    @apply font-mono uppercase tracking-widest text-xs text-muted-foreground;
+  }
+
+  .neon-text {
+    text-shadow: 0 0 5px var(--primary), 0 0 10px var(--primary);
+  }
+}
+
+:root {
+  --primary: #10B981;
+  --primary-foreground: #ffffff;
+}
+
 /* Utilities */
 .flex-col {
   display: flex;

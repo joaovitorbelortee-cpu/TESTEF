@@ -90,3 +90,5 @@ Se quiser manter o scanner ativo mas ignorar arquivos específicos:
 
 
 
+
+

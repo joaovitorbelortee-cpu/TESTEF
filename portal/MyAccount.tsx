@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { portalAPI } from '../services/api';
 
 interface MyAccountProps {
   token: string;
@@ -43,26 +44,21 @@ export default function MyAccount({ token, client }: MyAccountProps) {
 
   const loadData = async () => {
     try {
-      const API_URL = (window.location.origin || 'http://localhost:3001') + '/api';
-      const [accountRes, purchasesRes] = await Promise.all([
-        fetch(`${API_URL}/portal/my-account`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`${API_URL}/portal/purchases`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      // Usar portalAPI
+      const [accountData, purchasesData] = await Promise.all([
+        portalAPI.getMyAccount(client.id),
+        portalAPI.getPurchases(client.id)
       ]);
 
-      if (accountRes.ok) {
-        const accountData = await accountRes.json();
-        setAccount(accountData.account);
+      if (accountData) {
+        setAccount(accountData as any); // Type assertion temporário devido a incompatibilidade suave de tipos
       }
 
-      if (purchasesRes.ok) {
-        const purchasesData = await purchasesRes.json();
-        setPurchases(purchasesData);
+      if (purchasesData) {
+        setPurchases(purchasesData as any);
       }
     } catch (err: any) {
+      console.error(err);
       setError('Erro ao carregar dados');
     } finally {
       setLoading(false);
@@ -148,7 +144,7 @@ export default function MyAccount({ token, client }: MyAccountProps) {
             <label>📧 Email da conta</label>
             <div className="credential-value">
               <span>{account.email}</span>
-              <button 
+              <button
                 className={`copy-btn ${copied === 'email' ? 'copied' : ''}`}
                 onClick={() => copyToClipboard(account.email, 'email')}
               >
@@ -163,13 +159,13 @@ export default function MyAccount({ token, client }: MyAccountProps) {
               <span className="password-field">
                 {showPassword ? account.password : '••••••••••'}
               </span>
-              <button 
+              <button
                 className="show-btn"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? '🙈 Ocultar' : '👁 Ver'}
               </button>
-              <button 
+              <button
                 className={`copy-btn ${copied === 'password' ? 'copied' : ''}`}
                 onClick={() => copyToClipboard(account.password, 'password')}
               >
@@ -197,20 +193,12 @@ export default function MyAccount({ token, client }: MyAccountProps) {
         </div>
 
         {/* Botão Renovar Fixo */}
-        <div style={{ padding: '0 24px 24px' }}>
-          <a 
+        <div className="renew-section">
+          <a
             href={`https://wa.me/5511999999999?text=${encodeURIComponent(`Olá! Quero renovar minha conta GamePass\n\nEmail: ${client.email}\nConta atual: ${account.email}\nVence em: ${formatDate(account.expiry_date)}`)}`}
-            target="_blank" 
+            target="_blank"
             rel="noopener noreferrer"
-            className="renew-btn"
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              gap: '8px',
-              width: '100%',
-              textDecoration: 'none'
-            }}
+            className="renew-btn full-width"
           >
             🔄 Renovar Conta
           </a>
@@ -225,9 +213,9 @@ export default function MyAccount({ token, client }: MyAccountProps) {
                 <p>Renove agora e garanta desconto de cliente fiel</p>
               </div>
             </div>
-            <a 
-              href="https://wa.me/5511999999999?text=Olá! Quero renovar minha conta GamePass" 
-              target="_blank" 
+            <a
+              href="https://wa.me/5511999999999?text=Olá! Quero renovar minha conta GamePass"
+              target="_blank"
               rel="noopener noreferrer"
               className="renew-btn"
             >
@@ -245,9 +233,9 @@ export default function MyAccount({ token, client }: MyAccountProps) {
                 <p>Adquira uma nova conta para continuar jogando</p>
               </div>
             </div>
-            <a 
-              href="https://wa.me/5511999999999?text=Olá! Quero comprar uma nova conta GamePass" 
-              target="_blank" 
+            <a
+              href="https://wa.me/5511999999999?text=Olá! Quero comprar uma nova conta GamePass"
+              target="_blank"
               rel="noopener noreferrer"
               className="renew-btn"
             >
@@ -283,9 +271,9 @@ export default function MyAccount({ token, client }: MyAccountProps) {
       {/* Ajuda */}
       <div className="help-section">
         <p>Precisa de ajuda?</p>
-        <a 
-          href="https://wa.me/5511999999999" 
-          target="_blank" 
+        <a
+          href="https://wa.me/5511999999999"
+          target="_blank"
           rel="noopener noreferrer"
           className="help-btn"
         >
