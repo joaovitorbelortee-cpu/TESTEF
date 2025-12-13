@@ -1,0 +1,13 @@
+{
+  "items": [
+    [
+      {
+        "connectionType": "STREAMABLE_HTTP",
+        "name": "STREAMABLE_HTTP-1765597003935",
+        "version": "1.0",
+        "url": "https://exclusiveboss.app.n8n.cloud/mcp-server/http",
+        "oauth": "https://exclusiveboss.app.n8n.cloud/mcp-server/http"
+      }
+    ]
+  ]
+}
