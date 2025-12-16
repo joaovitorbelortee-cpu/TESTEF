@@ -2,14 +2,25 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 import express from 'express';
 import cors from 'cors';
+console.log('🚀 Iniciando servidor...');
 // Tenta usar Supabase, se não estiver configurado, usa JSON
 let initDatabase;
 try {
+  console.log('📦 Tentando carregar Supabase DB...');
   const supabaseDb = await import('./database-supabase.js');
+  console.log('✅ Supabase DB carregado');
   initDatabase = supabaseDb.initDatabase;
 } catch (e) {
-  const jsonDb = await import('./database.js');
-  initDatabase = jsonDb.initDatabase;
+  console.error('❌ Erro carregar Supabase:', e);
+  console.log('📦 Tentando carregar JSON DB local...');
+  try {
+    const jsonDb = await import('./database.js');
+    console.log('✅ JSON DB carregado');
+    initDatabase = jsonDb.initDatabase;
+  } catch (err2) {
+    console.error('❌❌ FATAL: Erro carregar JSON DB:', err2);
+    process.exit(1);
+  }
 }
 import accountsRoutes from './routes/accounts.js';
 import clientsRoutes from './routes/clients.js';

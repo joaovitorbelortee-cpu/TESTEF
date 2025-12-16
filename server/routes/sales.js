@@ -1,6 +1,6 @@
 import express from 'express';
 import { db } from '../database.js';
-import { processSale, processRenewal } from '../n8n-integration.js';
+import webhookEvents from '../webhook-service.js';
 
 const router = express.Router();
 
@@ -95,25 +95,45 @@ router.put('/renew', async (req, res) => {
         });
       }
 
-      await db.createSale({
+      const sale = await db.createSale({
         client_id: client.id,
         account_id: newAccount.id,
         sale_price: 69,
         payment_method: 'api-renewal'
       });
 
-      // Disparar webhook n8n para renovação
+      // Disparar webhook n8n para renovação (tratado como venda/renovação com nova conta)
       try {
-        await processRenewal({
-          client_id: client.id,
-          client_email: client.email,
-          client_name: client.name,
-          old_account_id: currentAccount?.id,
-          new_account_id: newAccount.id,
-          new_expiry_date: new_expiry_date
-        });
+        const accountObj = {
+          id: newAccount.id,
+          email: newAccount.email,
+          expiry_date: newAccount.expiry_date,
+          status: newAccount.status
+        };
+        const clientObj = {
+          id: client.id,
+          name: client.name,
+          email: client.email,
+          whatsapp: client.whatsapp
+        };
+        const saleObj = {
+          id: sale.id,
+          sale_price: sale.sale_price,
+          profit: sale.profit,
+          created_at: sale.created_at
+        };
+
+        // Usa accountSold pois é semanticamente similar (venda de renovação) e suporta a URL específica de vendas se necessário
+        // Dependendo da lógica do usuário, pode querer separar, mas o N8N_SALES_WEBHOOK é para "new-sale"
+        // Create extra data object for the simplified webhook
+        const extraData = {
+          payment_method: 'api-renewal',
+          payment_id: `RENEW-${sale.id}` // Generate a transaction ID for renewals
+        };
+
+        await webhookEvents.accountSold(accountObj, clientObj, saleObj, extraData);
       } catch (n8nError) {
-        console.error('[N8N] Error triggering renewal webhook:', n8nError);
+        console.error('[N8N] Error triggering renewal webhook via webhookEvents:', n8nError);
       }
 
       return res.json({
@@ -173,19 +193,42 @@ router.get('/:id', (req, res) => {
 // Registrar nova venda
 router.post('/', async (req, res) => {
   try {
-    const sale = db.createSale(req.body);
+    const sale = await db.createSale(req.body);
 
-    // Disparar webhook n8n para processar a venda
+    // Disparar webhook n8n usando o serviço unificado
     try {
-      await processSale({
-        sale_id: sale.id,
-        client_id: sale.client_id,
-        account_id: sale.account_id,
+      // Reconstruir objetos necessários para o webhookEvent
+      // sale já contém dados combinados (joins) retornados pelo db.createSale -> db.getSaleById
+
+      const accountObj = {
+        id: sale.account_id,
+        email: sale.account_email,
+        expiry_date: sale.account_expiry,
+        status: 'sold' // Assumindo status sold após venda
+      };
+
+      const clientObj = {
+        id: sale.client_id,
+        name: sale.client_name,
+        email: sale.client_email,
+        whatsapp: sale.client_whatsapp
+      };
+
+      const saleObj = {
+        id: sale.id,
         sale_price: sale.sale_price,
-        payment_method: sale.payment_method
-      });
+        profit: sale.profit,
+        created_at: sale.created_at
+      };
+
+      const extraData = {
+        payment_method: req.body.payment_method || 'pix',
+        payment_id: req.body.payment_id || `SALE-${sale.id}`
+      };
+
+      await webhookEvents.accountSold(accountObj, clientObj, saleObj, extraData);
     } catch (n8nError) {
-      console.error('[N8N] Error triggering sale webhook:', n8nError);
+      console.error('[N8N] Error triggering sale webhook via webhookEvents:', n8nError);
       // Não falhar a venda se o n8n falhar
     }
 
