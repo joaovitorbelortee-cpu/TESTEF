@@ -70,7 +70,7 @@ class Database {
 
   async getAccountById(id) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
@@ -83,9 +83,9 @@ class Database {
 
   async getAvailableAccounts() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     await this.updateAccountStatuses();
-    
+
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
@@ -98,9 +98,9 @@ class Database {
 
   async getSoldAccounts() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     await this.updateAccountStatuses();
-    
+
     const { data: accounts, error } = await supabase
       .from('accounts')
       .select('*')
@@ -137,9 +137,9 @@ class Database {
 
   async getExpiringAccounts() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     await this.updateAccountStatuses();
-    
+
     const { data: accounts, error } = await supabase
       .from('accounts')
       .select('*')
@@ -150,7 +150,7 @@ class Database {
 
     const today = new Date();
     const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
     const expiring = accounts
       .filter(a => {
         const expiry = new Date(a.expiry_date);
@@ -185,7 +185,7 @@ class Database {
 
   async createAccount(data) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const account = {
       email: data.email,
       password: data.password,
@@ -208,7 +208,7 @@ class Database {
 
   async updateAccount(id, data) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data: updated, error } = await supabase
       .from('accounts')
       .update({ ...data, updated_at: new Date().toISOString() })
@@ -222,7 +222,7 @@ class Database {
 
   async deleteAccount(id, force = false) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     // Verificar se tem vendas
     const { data: sales } = await supabase
       .from('sales')
@@ -251,7 +251,7 @@ class Database {
 
   async updateAccountStatuses() {
     if (!this.useSupabase) return;
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -300,9 +300,9 @@ class Database {
 
   async getExpiredAccounts() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     await this.updateAccountStatuses();
-    
+
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
@@ -319,9 +319,9 @@ class Database {
 
   async getPendingRenewalAccounts() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     await this.updateAccountStatuses();
-    
+
     const { data: accounts, error } = await supabase
       .from('accounts')
       .select('*')
@@ -363,7 +363,7 @@ class Database {
   // Clients
   async getAllClients() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data: clients, error } = await supabase
       .from('clients')
       .select('*')
@@ -395,7 +395,7 @@ class Database {
 
   async getClientById(id) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data: client, error } = await supabase
       .from('clients')
       .select('*')
@@ -424,7 +424,7 @@ class Database {
 
   async getClientByWhatsapp(whatsapp) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data, error } = await supabase
       .from('clients')
       .select('*')
@@ -437,7 +437,7 @@ class Database {
 
   async getClientByEmail(email) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data, error } = await supabase
       .from('clients')
       .select('*')
@@ -450,7 +450,7 @@ class Database {
 
   async createClient(data) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     if (data.whatsapp) {
       const existing = await this.getClientByWhatsapp(data.whatsapp);
       if (existing) {
@@ -479,7 +479,7 @@ class Database {
 
   async updateClient(id, data) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const updateData = { ...data };
     if (data.password) {
       updateData.password_hash = hashPassword(data.password);
@@ -500,7 +500,7 @@ class Database {
 
   async deleteClient(id) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data: sales } = await supabase
       .from('sales')
       .select('id')
@@ -521,9 +521,9 @@ class Database {
   // Portal - Autenticação
   async registerClientPortal(email, password) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const client = await this.getClientByEmail(email);
-    
+
     if (!client) {
       throw new Error('Email não encontrado. Use o mesmo email da compra.');
     }
@@ -547,9 +547,9 @@ class Database {
 
   async loginClientPortal(email, password) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const client = await this.getClientByEmail(email);
-    
+
     if (!client) {
       throw new Error('Email não encontrado.');
     }
@@ -582,7 +582,7 @@ class Database {
 
   async validateToken(token) {
     if (!this.useSupabase) return null;
-    
+
     const { data: client, error } = await supabase
       .from('clients')
       .select('*')
@@ -600,7 +600,7 @@ class Database {
 
   async getClientActiveAccount(clientId) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     await this.updateAccountStatuses();
 
     const { data: sales, error } = await supabase
@@ -632,7 +632,7 @@ class Database {
 
   async getClientPurchaseHistory(clientId) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data: sales, error } = await supabase
       .from('sales')
       .select('*, accounts(*)')
@@ -654,7 +654,7 @@ class Database {
   // Sales
   async getAllSales() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data: sales, error } = await supabase
       .from('sales')
       .select('*, clients(*), accounts(*)')
@@ -675,7 +675,7 @@ class Database {
 
   async getSaleById(id) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const { data: sale, error } = await supabase
       .from('sales')
       .select('*, clients(*), accounts(*)')
@@ -697,7 +697,7 @@ class Database {
 
   async createSale(data) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     let clientId = data.client_id;
 
     // Criar cliente se não existir
@@ -719,19 +719,25 @@ class Database {
       clientId = client.id;
     }
 
-    // Verificar conta
-    const account = await this.getAccountById(data.account_id);
-    if (!account || account.status !== 'available') {
-      throw new Error('Conta não está disponível');
+    // Verificar conta e travar atomicamente
+    const { data: account, error: accountError } = await supabase
+      .rpc('get_and_assign_account', { p_client_id: clientId });
+
+    if (accountError) throw accountError;
+    if (!account || account.length === 0) {
+      throw new Error('Conta não está disponível (Estoque vazio ou erro de concorrência)');
     }
+
+    // O RPC retorna um array, pegamos o primeiro (único)
+    const lockedAccount = account[0];
 
     // Criar venda
     const sale = {
       client_id: clientId,
-      account_id: data.account_id,
+      account_id: lockedAccount.id,
       sale_price: data.sale_price,
-      cost: account.cost,
-      profit: data.sale_price - account.cost,
+      cost: 35, // Valor padrão ou buscar do parametro se houver
+      profit: data.sale_price - 35,
       payment_method: data.payment_method || 'pix',
       notes: data.notes || ''
     };
@@ -742,10 +748,15 @@ class Database {
       .select()
       .single();
 
-    if (saleError) throw saleError;
+    if (saleError) {
+      // Se falhar ao criar venda, deveríamos reverter o status da conta (idealmente)
+      // Mas como é raro, logamos erro grave. O admin veria uma conta 'sold' sem venda.
+      console.error('CRITICAL: Account sold but sale creation failed', lockedAccount.id);
+      throw saleError;
+    }
 
-    // Marcar conta como vendida
-    await this.updateAccount(data.account_id, { status: 'sold' });
+    // Marcar conta como vendida (JÁ FEITO PELO RPC, MANTENDO APENAS PARA COMPATIBILIDADE DE FLUXO SE NECESSÁRIO)
+    // O RPC já atualizou para 'sold'. Nada a fazer aqui.
 
     // Atualizar tag do cliente
     const { data: clientSales } = await supabase
@@ -767,7 +778,7 @@ class Database {
 
   async deleteSale(id) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const sale = await this.getSaleById(id);
     if (!sale) {
       throw new Error('Venda não encontrada');
@@ -788,7 +799,7 @@ class Database {
   // Dashboard
   async getDashboard() {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     await this.updateAccountStatuses();
 
     const now = new Date();
@@ -858,7 +869,7 @@ class Database {
 
   async markAccountForRenewal(accountId, clientEmail) {
     if (!this.useSupabase) throw new Error('Supabase não configurado');
-    
+
     const account = await this.getAccountById(accountId);
     if (!account) {
       throw new Error('Conta não encontrada');

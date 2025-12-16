@@ -13,7 +13,7 @@ export async function sendWebhook(event, data, overrideUrl = null) {
     const url = overrideUrl || N8N_WEBHOOK_URL;
 
     if (!url) {
-        console.log(`⚠️ Webhook URL não configurada. Evento ${event} não enviado.`);
+        console.warn(`⚠️ Webhook URL não configurada. Evento ${event} não enviado.`);
         return null;
     }
 
@@ -48,26 +48,25 @@ export async function sendWebhook(event, data, overrideUrl = null) {
 }
 
 // Eventos específicos
-export const webhookEvents = {
+const webhookEvents = {
     /**
      * Chamado quando uma conta é vendida
      */
     async accountSold(account, client, sale, extraData = {}) {
         return sendWebhook('account_sold', {
-            // Flat structure for n8n
             client_name: client.name,
             client_email: client.email,
             client_phone: client.whatsapp,
-            plan_type: 'monthly', // Default or derived if possible
+            plan_type: 'monthly',
             payment_method: extraData.payment_method || 'pix',
             payment_id: extraData.payment_id || `TRANS-${sale.id}`,
             amount: sale.sale_price || sale.amount || 0,
-            transaction_date: sale.date || sale.created_at || new Date().toISOString()
+            transaction_date: sale.created_at || new Date().toISOString()
         }, process.env.N8N_SALES_WEBHOOK);
     },
 
     /**
-     * Chamado quando uma nova conta é adicionada ao estoque
+     * Chamado quando nova conta é adicionada
      */
     async accountAdded(account) {
         return sendWebhook('account_added', {
@@ -75,65 +74,26 @@ export const webhookEvents = {
                 id: account.id,
                 email: account.email,
                 expiry_date: account.expiry_date,
-                cost: account.cost,
                 status: account.status
             }
         });
     },
 
     /**
-     * Chamado quando uma conta está prestes a expirar (7 dias ou menos)
+     * Chamado quando conta expira
      */
     async accountExpiring(account, client, daysLeft) {
+        const clientData = client ? {
+            name: client.name,
+            email: client.email,
+            whatsapp: client.whatsapp
+        } : null;
+
         return sendWebhook('account_expiring', {
-            account: {
-                id: account.id,
-                email: account.email,
-                expiry_date: account.expiry_date,
-                status: account.status
-            },
-            client: client ? {
-                id: client.id,
-                name: client.name,
-                email: client.email,
-                whatsapp: client.whatsapp
-            } : null,
-            days_left: daysLeft
-        });
-    },
-
-    /**
-     * Chamado quando uma conta expira
-     */
-    async accountExpired(account, client) {
-        return sendWebhook('account_expired', {
-            account: {
-                id: account.id,
-                email: account.email,
-                expiry_date: account.expiry_date,
-                status: account.status
-            },
-            client: client ? {
-                id: client.id,
-                name: client.name,
-                email: client.email,
-                whatsapp: client.whatsapp
-            } : null
-        });
-    },
-
-    /**
-     * Chamado quando um cliente é criado
-     */
-    async clientCreated(client) {
-        return sendWebhook('client_created', {
-            client: {
-                id: client.id,
-                name: client.name,
-                email: client.email,
-                whatsapp: client.whatsapp,
-                tag: client.tag
-            }
+            account_email: account.email,
+            expiry_date: account.expiry_date,
+            days_left: daysLeft,
+            ...clientData
         });
     }
 };

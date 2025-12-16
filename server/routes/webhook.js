@@ -194,18 +194,43 @@ router.post('/n8n/renew', async (req, res) => {
       });
     } else if (currentAccount && new_expiry_date) {
       // Apenas estender a data de expiração
+      // Apenas estender a data de expiração
+      const currentExpiry = new Date(currentAccount.expiry_date);
+      const now = new Date();
+
+      // Se ainda não venceu, soma a partir da data de vencimento atual
+      // Se já venceu, soma a partir de agora
+      const baseDate = currentExpiry > now ? currentExpiry : now;
+
+      // Adicionar 30 dias (padrão) ou usar a data fornecida se explicitamente maior que a calculada
+      // Mas a lógica 'inteligente' é somar 30 dias à baseDate
+      const defaultDurationMs = 30 * 24 * 60 * 60 * 1000;
+      const calculatedExpiryMs = baseDate.getTime() + defaultDurationMs;
+
+      let finalExpiryDate = new Date(calculatedExpiryMs).toISOString().split('T')[0];
+
+      // Se o webhook mandou uma data específica E ela é maior que a calculada, usamos ela (confiando no n8n)
+      // Caso contrário, usamos a nossa calculada que garante os 30 dias a mais
+      if (new_expiry_date) {
+        const providedDate = new Date(new_expiry_date);
+        if (providedDate > new Date(calculatedExpiryMs)) {
+          finalExpiryDate = new_expiry_date;
+        }
+      }
+
       const updatedAccount = db.updateAccount(currentAccount.id, {
-        expiry_date: new_expiry_date,
+        expiry_date: finalExpiryDate,
         status: 'sold'
       });
 
       res.json({
         success: true,
-        message: 'Data de expiração estendida',
+        message: 'Data de expiração estendida com sucesso',
         account: {
           id: updatedAccount.id,
           email: updatedAccount.email,
-          expiry_date: updatedAccount.expiry_date
+          expiry_date: updatedAccount.expiry_date,
+          previous_expiry: currentAccount.expiry_date
         }
       });
     } else {
