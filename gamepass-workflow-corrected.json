@@ -1,0 +1,1871 @@
+{
+    "name": "GamePass Sales and Renewal Management System - v4 CORRECTED",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "new-sale",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "id": "7fdcea8c-e839-49bf-b631-575503077a9e",
+            "name": "New Sale Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                2464,
+                752
+            ],
+            "webhookId": "1b5a041f-0bd0-48c8-a942-fbce9aa593f9"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "id-1",
+                            "name": "apiBaseUrl",
+                            "value": "=https://cpzxslaufhomqxksyrwt.supabase.co",
+                            "type": "string"
+                        },
+                        {
+                            "id": "id-2",
+                            "name": "client_email_norm",
+                            "value": "={{ ($json.client_email || $json.email || '').toLowerCase().trim() }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "id-3",
+                            "name": "payment_id_norm",
+                            "value": "={{ String($json.payment_id || $json.order_id || $json.transaction_id || '').trim() }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "id-4",
+                            "name": "client_name",
+                            "value": "={{ $json.client_name || $json.name || 'Cliente' }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "id-5",
+                            "name": "client_whatsapp",
+                            "value": "={{ $json.client_whatsapp || $json.phone || $json.whatsapp || '' }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "id-6",
+                            "name": "portal_link",
+                            "value": "={{ $json.portal_link || 'https://gamepass-portal.vercel.app/login/' }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "includeOtherFields": true,
+                "options": {}
+            },
+            "id": "0033dc0d-eebc-4783-85bc-5d6260feb618",
+            "name": "Normalize and Configure",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                2816,
+                720
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    },
+                    "conditions": [
+                        {
+                            "id": "cond-1",
+                            "leftValue": "={{ $json.client_email_norm }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "notEmpty",
+                                "singleValue": true
+                            }
+                        },
+                        {
+                            "id": "cond-2",
+                            "leftValue": "={{ $json.payment_id_norm }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "notEmpty",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "0f26fc51-1d5a-4b4b-ae91-94bbffe3002a",
+            "name": "Validate Required Fields",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                3040,
+                720
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "get",
+                "tableId": "clients",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "email",
+                            "keyValue": "={{ $json.client_email_norm }}"
+                        }
+                    ]
+                }
+            },
+            "id": "9934ba0e-53db-497e-9bbb-6c5d6aaeb7bc",
+            "name": "Check Payment Duplicate",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                3264,
+                720
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "new-check",
+                            "leftValue": "={{ $json.length }}",
+                            "rightValue": 0,
+                            "operator": {
+                                "type": "number",
+                                "operation": "equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "168fd35b-7540-4c43-84e3-3e77371d37c2",
+            "name": "Is New Client?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                4160,
+                720
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "get",
+                "tableId": "accounts",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "status",
+                            "keyValue": "available"
+                        }
+                    ]
+                }
+            },
+            "id": "e74ad4b8-d013-44d0-9939-8e2a47523f01",
+            "name": "Find Available Account",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                4384,
+                624
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "account-check",
+                            "leftValue": "={{ $json.length }}",
+                            "rightValue": 0,
+                            "operator": {
+                                "type": "number",
+                                "operation": "gt"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "de098312-5a53-4049-8b36-cffea5658469",
+            "name": "Account Available?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                4608,
+                624
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "acc-1",
+                            "name": "selected_account_id",
+                            "value": "={{ $json[0].id }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "acc-2",
+                            "name": "selected_account_email",
+                            "value": "={{ $json[0].email }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "acc-3",
+                            "name": "selected_account_password",
+                            "value": "={{ $json[0].password }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "acc-4",
+                            "name": "selected_account_expiry",
+                            "value": "={{ $json[0].expiry_date }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "8f9c5b11-3579-4f68-949c-cc22ebc9a963",
+            "name": "Extract Account Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                4832,
+                624
+            ]
+        },
+        {
+            "parameters": {
+                "tableId": "sales"
+            },
+            "id": "f7b840c5-3009-47fb-bf26-ddc3f7d170d3",
+            "name": "Create Sale Record",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5056,
+                624
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "tableId": "users",
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "email",
+                            "fieldValue": "={{ $if( $(\"Normalize and Configure\").isExecuted, $(\"Normalize and Configure\").first().json.client_email_norm, \"\") }}"
+                        },
+                        {
+                            "fieldId": "account_email",
+                            "fieldValue": "={{ $if( $(\"Extract Account Data\").isExecuted, $(\"Extract Account Data\").first().json.selected_account_email, null) }}"
+                        },
+                        {
+                            "fieldId": "account_password",
+                            "fieldValue": "={{ $if( $(\"Extract Account Data\").isExecuted, $(\"Extract Account Data\").first().json.selected_account_password, null) }}"
+                        },
+                        {
+                            "fieldId": "expiry_date",
+                            "fieldValue": "={{ $if( $(\"Extract Account Data\").isExecuted, $(\"Extract Account Data\").first().json.selected_account_expiry, null) }}"
+                        },
+                        {
+                            "fieldId": "created_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "838ef077-d551-407d-8bba-629a567b72ba",
+            "name": "Register User in Portal",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5696,
+                624
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "accounts",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "id",
+                            "condition": "eq",
+                            "keyValue": "={{ $if( $(\"Extract Account Data\").isExecuted, $(\"Extract Account Data\").first().json.selected_account_id, null) }}"
+                        }
+                    ]
+                },
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "status",
+                            "fieldValue": "sold"
+                        },
+                        {
+                            "fieldId": "updated_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        },
+                        {
+                            "fieldId": "sold_to_email",
+                            "fieldValue": "={{ $if( $(\"Normalize and Configure\").isExecuted, $(\"Normalize and Configure\").first().json.client_email_norm, null) }}"
+                        }
+                    ]
+                }
+            },
+            "id": "a0cfe63d-7b27-4bee-9341-aa87d6e96ae2",
+            "name": "Update Account Status to Sold",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5920,
+                624
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "gamepass_events",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "payment_id_norm",
+                            "condition": "eq",
+                            "keyValue": "={{ $if( $(\"Normalize and Configure\").isExecuted, $(\"Normalize and Configure\").first().json.payment_id_norm, null) }}"
+                        }
+                    ]
+                },
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "status",
+                            "fieldValue": "completed"
+                        },
+                        {
+                            "fieldId": "updated_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "933d7fa0-f790-4b35-b958-4c7a0b334330",
+            "name": "Update Payment Status (Sale)",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                6144,
+                624
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "sendTo": "={{ $('Normalize and Configure').first().json.client_email_norm }}",
+                "subject": "🎮 Sua conta GamePass está pronta!",
+                "message": "=<html><body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\"><div style=\"max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;\"><div style=\"background-color: #107C10; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;\"><h1 style=\"margin: 0;\">🎮 GamePass Ultimate</h1></div><div style=\"background-color: white; padding: 30px; border-radius: 0 0 10px 10px;\"><h2 style=\"color: #107C10;\">Olá {{ $('Normalize and Configure').first().json.client_name }}!</h2><p style=\"font-size: 16px;\">Seu pagamento foi confirmado e sua conta GamePass Ultimate está pronta para uso!</p><div style=\"background-color: #f9f9f9; padding: 20px; border-left: 4px solid #107C10; margin: 20px 0;\"><p style=\"margin: 5px 0;\"><strong>📧 Email da conta:</strong> {{ $('Extract Account Data').first().json.selected_account_email }}</p><p style=\"margin: 5px 0;\"><strong>🔑 Senha:</strong> Disponível no portal</p><p style=\"margin: 5px 0;\"><strong>📅 Validade:</strong> {{ $('Extract Account Data').first().json.selected_account_expiry }}</p></div><p style=\"font-size: 16px;\">Acesse seu portal personalizado para ver todos os detalhes da sua conta:</p><div style=\"text-align: center; margin: 30px 0;\"><a href=\"{{ $('Normalize and Configure').first().json.portal_link }}\" style=\"background-color: #107C10; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 18px; display: inline-block;\">Acessar Portal</a></div><p style=\"font-size: 14px; color: #666;\">Qualquer dúvida, estamos à disposição!</p></div><div style=\"text-align: center; padding: 20px; font-size: 12px; color: #999;\"><p>Este é um email automático. Por favor, não responda.</p></div></div></body></html>",
+                "options": {}
+            },
+            "id": "f4b821b3-50b2-42c3-b2d2-d9d5ee9c252d",
+            "name": "Send Welcome Email",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.2,
+            "position": [
+                6368,
+                624
+            ],
+            "webhookId": "7fbae26f-5f50-4e14-a274-f19d3045f4a9",
+            "credentials": {
+                "gmailOAuth2": {
+                    "id": "qlDj4aUw1a5WIPhS",
+                    "name": "Gmail account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "existing-1",
+                            "name": "existing_sale_id",
+                            "value": "={{ $json[0].id }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "existing-2",
+                            "name": "existing_account_id",
+                            "value": "={{ $json[0].account_id }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "existing-3",
+                            "name": "renewals_count",
+                            "value": "={{ ($json[0].renewals_count || 0) + 1 }}",
+                            "type": "number"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "97c79bc0-50e2-418e-a3ce-fb82d99a071c",
+            "name": "Extract Existing Sale Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                4384,
+                816
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "get",
+                "tableId": "accounts",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "id",
+                            "keyValue": "={{ $json.existing_account_id || null }}"
+                        }
+                    ]
+                }
+            },
+            "id": "c5fb3203-f7d7-48a6-b2f5-250f8d805fa6",
+            "name": "Get Existing Account",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                4608,
+                816
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "calc-1",
+                            "name": "current_expiry",
+                            "value": "={{ $json[0].expiry_date }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "calc-2",
+                            "name": "new_expiry_date",
+                            "value": "={{ $now.plus({days: 30}).toFormat('yyyy-MM-dd') }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "includeOtherFields": true,
+                "options": {}
+            },
+            "id": "2bba2bb7-090c-43f6-9a12-e04389781859",
+            "name": "Calculate New Expiry Date",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                4832,
+                816
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "accounts",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "id",
+                            "condition": "eq",
+                            "keyValue": "={{ $('Extract Existing Sale Data').first().json.existing_account_id }}"
+                        }
+                    ]
+                },
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "expiry_date",
+                            "fieldValue": "={{ $json.new_expiry_date }}"
+                        },
+                        {
+                            "fieldId": "updated_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "96f3a63f-a180-46c5-a9cc-dc7b8f3d2a16",
+            "name": "Update Account Expiry",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5056,
+                816
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "sales",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "id",
+                            "condition": "eq",
+                            "keyValue": "={{ $('Extract Existing Sale Data').first().json.existing_sale_id }}"
+                        }
+                    ]
+                },
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "renewals_count",
+                            "fieldValue": "={{ $('Extract Existing Sale Data').first().json.renewals_count }}"
+                        },
+                        {
+                            "fieldId": "updated_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        },
+                        {
+                            "fieldId": "last_renewal_payment_id",
+                            "fieldValue": "={{ $if( $(\"Normalize and Configure\").isExecuted, $(\"Normalize and Configure\").first().json.payment_id_norm, \"\") }}"
+                        }
+                    ]
+                }
+            },
+            "id": "a4632a26-d269-4bf4-aaed-5d7dad13562e",
+            "name": "Update Sale Renewal Info",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5280,
+                816
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "users",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "email",
+                            "condition": "eq",
+                            "keyValue": "={{ $if( $(\"Normalize and Configure\").isExecuted, $(\"Normalize and Configure\").first().json.client_email_norm, $json.email) }}"
+                        }
+                    ]
+                },
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "expiry_date",
+                            "fieldValue": "={{ $('Calculate New Expiry Date').first().json.new_expiry_date }}"
+                        },
+                        {
+                            "fieldId": "updated_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "65ef82ca-e1d0-4fb9-b0e4-563a287cddc2",
+            "name": "Update User Expiry",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5504,
+                816
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "tableId": "gamepass_events",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "payment_id_norm",
+                            "condition": "eq",
+                            "keyValue": "={{ $if( $(\"Normalize and Configure\").isExecuted, $(\"Normalize and Configure\").first().json.payment_id_norm, $json.payment_id) }}"
+                        }
+                    ]
+                },
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "status",
+                            "fieldValue": "completed"
+                        },
+                        {
+                            "fieldId": "updated_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "a6dca863-ebee-4097-a086-d93a5b3c4d4b",
+            "name": "Update Payment Status (Renewal)",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5728,
+                816
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "sendTo": "={{ $('Normalize and Configure').first().json.client_email_norm }}",
+                "subject": "✅ Renovação Confirmada - GamePass Ultimate",
+                "message": "=<html><body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\"><div style=\"max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;\"><div style=\"background-color: #107C10; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;\"><h1 style=\"margin: 0;\">✅ Renovação Confirmada</h1></div><div style=\"background-color: white; padding: 30px; border-radius: 0 0 10px 10px;\"><h2 style=\"color: #107C10;\">Olá {{ $('Normalize and Configure').first().json.client_name }}!</h2><p style=\"font-size: 16px;\">Sua renovação foi processada com sucesso!</p><div style=\"background-color: #f9f9f9; padding: 20px; border-left: 4px solid #107C10; margin: 20px 0;\"><p style=\"margin: 5px 0;\"><strong>📅 Nova validade:</strong> {{ $('Calculate New Expiry Date').first().json.new_expiry_date }}</p><p style=\"margin: 5px 0;\"><strong>💳 ID do pagamento:</strong> {{ $('Normalize and Configure').first().json.payment_id_norm }}</p><p style=\"margin: 5px 0;\"><strong>🔄 Total de renovações:</strong> {{ $('Extract Existing Sale Data').first().json.renewals_count }}</p></div><p style=\"font-size: 16px;\">Acesse seu portal para ver os dados atualizados:</p><div style=\"text-align: center; margin: 30px 0;\"><a href=\"{{ $('Normalize and Configure').first().json.portal_link }}\" style=\"background-color: #107C10; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 18px; display: inline-block;\">Acessar Portal</a></div><p style=\"font-size: 14px; color: #666;\">Obrigado pela confiança! 💚</p></div><div style=\"text-align: center; padding: 20px; font-size: 12px; color: #999;\"><p>Recibo de renovação - GamePass Ultimate</p></div></div></body></html>",
+                "options": {}
+            },
+            "id": "d7e15743-39fc-4d23-9493-853b661ebddb",
+            "name": "Send Renewal Email",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.2,
+            "position": [
+                5952,
+                816
+            ],
+            "webhookId": "12896c66-4ca4-4bbe-be48-2f62c262d1d6",
+            "credentials": {
+                "gmailOAuth2": {
+                    "id": "qlDj4aUw1a5WIPhS",
+                    "name": "Gmail account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "triggerAtHour": 9
+                        }
+                    ]
+                }
+            },
+            "id": "4d32436b-1e33-418d-b4dd-9892a4ea7cbc",
+            "name": "Daily 9AM Check",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.3,
+            "position": [
+                2368,
+                1232
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "config-1",
+                            "name": "apiBaseUrl",
+                            "value": "={{ $env.API_BASE_URL || 'https://api.seudominio.com.br' }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "config-2",
+                            "name": "today",
+                            "value": "={{ $now.toFormat('yyyy-MM-dd') }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "config-3",
+                            "name": "in7days",
+                            "value": "={{ $now.plus({days: 7}).toFormat('yyyy-MM-dd') }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "56b8cf1b-3875-4f99-8aef-7322b478df98",
+            "name": "Schedule Configuration",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                2592,
+                1232
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "get",
+                "tableId": "accounts",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "status",
+                            "keyValue": "sold"
+                        },
+                        {
+                            "keyName": "expiry_date",
+                            "condition": "lte",
+                            "keyValue": "={{ $json.in7days }}"
+                        }
+                    ]
+                }
+            },
+            "id": "2867f46b-ba1e-4445-a57d-7dd86a4e0166",
+            "name": "Get Expiring Accounts",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                2816,
+                1232
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "has-expiring",
+                            "leftValue": "={{ $json.length }}",
+                            "rightValue": 0,
+                            "operator": {
+                                "type": "number",
+                                "operation": "gt"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "3accdde0-6c33-4fcd-9992-db5e60046763",
+            "name": "Has Expiring Accounts?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                3040,
+                1232
+            ]
+        },
+        {
+            "parameters": {
+                "fieldToSplitOut": "data",
+                "options": {}
+            },
+            "id": "8594201c-0841-4c76-98c8-9e11edb55158",
+            "name": "Split Into Items",
+            "type": "n8n-nodes-base.splitOut",
+            "typeVersion": 1,
+            "position": [
+                3264,
+                1232
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "days-1",
+                            "name": "days_left",
+                            "value": "={{ Math.ceil(($toDate($json.expiry_date).getTime() - $now.toJSDate().getTime()) / (1000 * 60 * 60 * 24)) }}",
+                            "type": "number"
+                        },
+                        {
+                            "id": "days-2",
+                            "name": "urgency",
+                            "value": "={{ $json.days_left <= 1 ? 'urgent' : ($json.days_left <= 3 ? 'attention' : 'preventive') }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "includeOtherFields": true,
+                "options": {}
+            },
+            "id": "d2b05ccb-ccd1-4d46-820d-362185fe3d7e",
+            "name": "Calculate Days Left",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                3488,
+                1232
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "get",
+                "tableId": "sales",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "account_id",
+                            "keyValue": "={{ $json.id }}"
+                        }
+                    ]
+                }
+            },
+            "id": "1beb234e-0c50-4884-bd61-b1a03bbddf1c",
+            "name": "Get Client For Account",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                3712,
+                1232
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "has-client",
+                            "leftValue": "={{ $json.length }}",
+                            "rightValue": 0,
+                            "operator": {
+                                "type": "number",
+                                "operation": "gt"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "af89c661-e13d-48d7-9e1a-3d937c2eebff",
+            "name": "Has Client?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                3936,
+                1232
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "merge-1",
+                            "name": "client_email",
+                            "value": "={{ $json[0].client_email }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "merge-2",
+                            "name": "client_name",
+                            "value": "={{ $json[0].client_name }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "merge-3",
+                            "name": "client_whatsapp",
+                            "value": "={{ $json[0].client_whatsapp }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "merge-4",
+                            "name": "days_left",
+                            "value": "={{ $('Calculate Days Left').item.json.days_left }}",
+                            "type": "number"
+                        },
+                        {
+                            "id": "merge-5",
+                            "name": "urgency",
+                            "value": "={{ $('Calculate Days Left').item.json.urgency }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "merge-6",
+                            "name": "expiry_date",
+                            "value": "={{ $('Calculate Days Left').item.json.expiry_date }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "merge-7",
+                            "name": "account_email",
+                            "value": "={{ $('Calculate Days Left').item.json.email }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "cf3a5e5b-a6b5-421c-955f-10626f51502e",
+            "name": "Merge Client Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                4160,
+                1232
+            ]
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.days_left }}",
+                                        "rightValue": 1,
+                                        "operator": {
+                                            "type": "number",
+                                            "operation": "lte"
+                                        },
+                                        "id": "urgent-cond"
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Urgent"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.days_left }}",
+                                        "rightValue": 3,
+                                        "operator": {
+                                            "type": "number",
+                                            "operation": "lte"
+                                        },
+                                        "id": "attention-cond"
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Attention"
+                        },
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 2
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.days_left }}",
+                                        "rightValue": 7,
+                                        "operator": {
+                                            "type": "number",
+                                            "operation": "lte"
+                                        },
+                                        "id": "preventive-cond"
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Preventive"
+                        }
+                    ]
+                },
+                "options": {
+                    "fallbackOutput": "none"
+                }
+            },
+            "id": "d488703a-baa4-42de-9bc4-b36793e47b80",
+            "name": "Route by Urgency",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.4,
+            "position": [
+                4384,
+                1216
+            ]
+        },
+        {
+            "parameters": {
+                "sendTo": "={{ $json.client_email }}",
+                "subject": "🚨 URGENTE: Sua conta GamePass expira HOJE!",
+                "message": "=<html><body style=\"font-family: Arial, sans-serif;\"><div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\"><div style=\"background-color: #D32F2F; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;\"><h1>🚨 URGENTE</h1></div><div style=\"background-color: white; padding: 30px; border-radius: 0 0 10px 10px;\"><h2 style=\"color: #D32F2F;\">Olá {{ $json.client_name }}!</h2><p style=\"font-size: 18px; color: #D32F2F;\">Sua conta GamePass expira em {{ $json.days_left }} dia(s)!</p><div style=\"background-color: #FFEBEE; padding: 20px; border-left: 4px solid #D32F2F; margin: 20px 0;\"><p><strong>📧 Conta:</strong> {{ $json.account_email }}</p><p><strong>📅 Expira em:</strong> {{ $json.expiry_date }}</p></div><div style=\"text-align: center; margin: 30px 0;\"><a href=\"https://gamepass-portal.vercel.app/renovar\" style=\"background-color: #D32F2F; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 18px;\">RENOVAR AGORA</a></div></div></div></body></html>",
+                "options": {}
+            },
+            "id": "2df12f8a-58a5-4d42-a6fd-31ecc1c15709",
+            "name": "Send Urgent Reminder",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.2,
+            "position": [
+                4608,
+                1040
+            ],
+            "credentials": {
+                "gmailOAuth2": {
+                    "id": "qlDj4aUw1a5WIPhS",
+                    "name": "Gmail account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "sendTo": "={{ $json.client_email }}",
+                "subject": "⚠️ Atenção: Sua conta GamePass expira em breve!",
+                "message": "=<html><body style=\"font-family: Arial, sans-serif;\"><div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\"><div style=\"background-color: #FF9800; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;\"><h1>⚠️ Atenção</h1></div><div style=\"background-color: white; padding: 30px; border-radius: 0 0 10px 10px;\"><h2 style=\"color: #FF9800;\">Olá {{ $json.client_name }}!</h2><p>Sua conta GamePass expira em <strong>{{ $json.days_left }} dias</strong>.</p><div style=\"background-color: #FFF3E0; padding: 20px; border-left: 4px solid #FF9800; margin: 20px 0;\"><p><strong>📧 Conta:</strong> {{ $json.account_email }}</p><p><strong>📅 Expira em:</strong> {{ $json.expiry_date }}</p></div><div style=\"text-align: center; margin: 30px 0;\"><a href=\"https://gamepass-portal.vercel.app/renovar\" style=\"background-color: #FF9800; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 18px;\">Renovar Agora</a></div></div></div></body></html>",
+                "options": {}
+            },
+            "id": "eaea1650-a14f-4e6e-aafe-43c550ce3074",
+            "name": "Send Attention Reminder",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.2,
+            "position": [
+                4608,
+                1232
+            ],
+            "credentials": {
+                "gmailOAuth2": {
+                    "id": "qlDj4aUw1a5WIPhS",
+                    "name": "Gmail account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "sendTo": "={{ $json.client_email }}",
+                "subject": "📅 Lembrete: Sua conta GamePass expira em 7 dias",
+                "message": "=<html><body style=\"font-family: Arial, sans-serif;\"><div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\"><div style=\"background-color: #107C10; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;\"><h1>📅 Lembrete</h1></div><div style=\"background-color: white; padding: 30px; border-radius: 0 0 10px 10px;\"><h2 style=\"color: #107C10;\">Olá {{ $json.client_name }}!</h2><p>Sua conta GamePass expira em <strong>{{ $json.days_left }} dias</strong>.</p><div style=\"background-color: #E8F5E9; padding: 20px; border-left: 4px solid #107C10; margin: 20px 0;\"><p><strong>📧 Conta:</strong> {{ $json.account_email }}</p><p><strong>📅 Expira em:</strong> {{ $json.expiry_date }}</p></div><div style=\"text-align: center; margin: 30px 0;\"><a href=\"https://gamepass-portal.vercel.app/renovar\" style=\"background-color: #107C10; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 18px;\">Ver Opções de Renovação</a></div></div></div></body></html>",
+                "options": {}
+            },
+            "id": "42a079f4-07f6-400c-8ef1-f9ab5c3fdb6e",
+            "name": "Send Preventive Reminder",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.2,
+            "position": [
+                4608,
+                1424
+            ],
+            "credentials": {
+                "gmailOAuth2": {
+                    "id": "qlDj4aUw1a5WIPhS",
+                    "name": "Gmail account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "tableId": "reminder_logs",
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "client_email",
+                            "fieldValue": "={{ $json.client_email }}"
+                        },
+                        {
+                            "fieldId": "urgency",
+                            "fieldValue": "urgent"
+                        },
+                        {
+                            "fieldId": "days_left",
+                            "fieldValue": "={{ $json.days_left }}"
+                        },
+                        {
+                            "fieldId": "expiry_date",
+                            "fieldValue": "={{ $json.expiry_date }}"
+                        },
+                        {
+                            "fieldId": "sent_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "9443134e-58e2-432f-8365-ca0575b1117b",
+            "name": "Log Urgent Reminder",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                4832,
+                1040
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "tableId": "reminder_logs",
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "client_email",
+                            "fieldValue": "={{ $json.client_email }}"
+                        },
+                        {
+                            "fieldId": "urgency",
+                            "fieldValue": "attention"
+                        },
+                        {
+                            "fieldId": "days_left",
+                            "fieldValue": "={{ $json.days_left }}"
+                        },
+                        {
+                            "fieldId": "expiry_date",
+                            "fieldValue": "={{ $json.expiry_date }}"
+                        },
+                        {
+                            "fieldId": "sent_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "eda46d88-9fb0-4240-8a47-0ac8a35acc0a",
+            "name": "Log Attention Reminder",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                4832,
+                1232
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "tableId": "reminder_logs",
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "client_email",
+                            "fieldValue": "={{ $json.client_email }}"
+                        },
+                        {
+                            "fieldId": "urgency",
+                            "fieldValue": "preventive"
+                        },
+                        {
+                            "fieldId": "days_left",
+                            "fieldValue": "={{ $json.days_left }}"
+                        },
+                        {
+                            "fieldId": "expiry_date",
+                            "fieldValue": "={{ $json.expiry_date }}"
+                        },
+                        {
+                            "fieldId": "sent_at",
+                            "fieldValue": "={{ $now.toISO() }}"
+                        }
+                    ]
+                }
+            },
+            "id": "1314f56c-72eb-4468-9f72-f4a20aedfb7a",
+            "name": "Log Preventive Reminder",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                4832,
+                1424
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            },
+            "continueOnFail": true
+        },
+        {
+            "parameters": {
+                "amount": 1,
+                "unit": "seconds"
+            },
+            "id": "01746e2c-664e-4831-ab3f-172d998196b2",
+            "name": "Rate Limit Delay",
+            "type": "n8n-nodes-base.wait",
+            "typeVersion": 1.1,
+            "position": [
+                5056,
+                1232
+            ],
+            "webhookId": "rate-limit-wait"
+        },
+        {
+            "parameters": {
+                "operation": "getAll",
+                "tableId": "users",
+                "filters": {
+                    "conditions": [
+                        {
+                            "keyName": "email",
+                            "condition": "eq",
+                            "keyValue": "={{ $if( $(\"Normalize and Configure\").isExecuted, $(\"Normalize and Configure\").first().json.client_email_norm, \"\") }}"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                5264,
+                624
+            ],
+            "id": "51f5e9b6-9e23-4beb-93b0-3707406054d2",
+            "name": "Get many rows",
+            "credentials": {
+                "supabaseApi": {
+                    "id": "P3PKG6lEzC7YYVYA",
+                    "name": "Supabase account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "3e4ca927-2ba6-4169-96cc-0a8b432e48c4",
+                            "leftValue": "={{ $if( $(\"Get many rows\").isExecuted, $(\"Get many rows\").all().length, 1) }}",
+                            "rightValue": "0",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "looseTypeValidation": true,
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                5472,
+                624
+            ],
+            "id": "0de8c858-2d45-4ab7-a27f-4c5f98e74d53",
+            "name": "If"
+        }
+    ],
+    "pinData": {
+        "New Sale Webhook": [
+            {
+                "json": {
+                    "client_name": "João Silva",
+                    "client_email": "joao.silva@example.com",
+                    "client_phone": "+5511987654321",
+                    "plan_type": "monthly",
+                    "payment_method": "pix",
+                    "payment_id": "PIX123456789",
+                    "amount": 29.9,
+                    "transaction_date": "2025-12-16T13:30:00Z"
+                }
+            }
+        ]
+    },
+    "connections": {
+        "New Sale Webhook": {
+            "main": [
+                []
+            ]
+        },
+        "Normalize and Configure": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Required Fields",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Required Fields": {
+            "main": [
+                [
+                    {
+                        "node": "Check Payment Duplicate",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                []
+            ]
+        },
+        "Check Payment Duplicate": {
+            "main": [
+                [
+                    {
+                        "node": "Is New Client?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Is New Client?": {
+            "main": [
+                [
+                    {
+                        "node": "Find Available Account",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Extract Existing Sale Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Find Available Account": {
+            "main": [
+                [
+                    {
+                        "node": "Account Available?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Account Available?": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Account Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Extract Account Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Account Data": {
+            "main": [
+                [
+                    {
+                        "node": "Create Sale Record",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create Sale Record": {
+            "main": [
+                [
+                    {
+                        "node": "Get many rows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Register User in Portal": {
+            "main": [
+                [
+                    {
+                        "node": "Update Account Status to Sold",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Account Status to Sold": {
+            "main": [
+                [
+                    {
+                        "node": "Update Payment Status (Sale)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Payment Status (Sale)": {
+            "main": [
+                [
+                    {
+                        "node": "Send Welcome Email",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Existing Sale Data": {
+            "main": [
+                [
+                    {
+                        "node": "Get Existing Account",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Existing Account": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate New Expiry Date",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate New Expiry Date": {
+            "main": [
+                [
+                    {
+                        "node": "Update Account Expiry",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Account Expiry": {
+            "main": [
+                [
+                    {
+                        "node": "Update Sale Renewal Info",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Sale Renewal Info": {
+            "main": [
+                [
+                    {
+                        "node": "Update User Expiry",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update User Expiry": {
+            "main": [
+                [
+                    {
+                        "node": "Update Payment Status (Renewal)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Payment Status (Renewal)": {
+            "main": [
+                [
+                    {
+                        "node": "Send Renewal Email",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Daily 9AM Check": {
+            "main": [
+                [
+                    {
+                        "node": "Schedule Configuration",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Schedule Configuration": {
+            "main": [
+                [
+                    {
+                        "node": "Get Expiring Accounts",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Expiring Accounts": {
+            "main": [
+                [
+                    {
+                        "node": "Has Expiring Accounts?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Expiring Accounts?": {
+            "main": [
+                [
+                    {
+                        "node": "Split Into Items",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Split Into Items": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Days Left",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Days Left": {
+            "main": [
+                [
+                    {
+                        "node": "Get Client For Account",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Client For Account": {
+            "main": [
+                [
+                    {
+                        "node": "Has Client?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Client?": {
+            "main": [
+                [
+                    {
+                        "node": "Merge Client Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Merge Client Data": {
+            "main": [
+                [
+                    {
+                        "node": "Route by Urgency",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route by Urgency": {
+            "main": [
+                [
+                    {
+                        "node": "Send Urgent Reminder",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Send Attention Reminder",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Send Preventive Reminder",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Urgent Reminder": {
+            "main": [
+                [
+                    {
+                        "node": "Log Urgent Reminder",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Attention Reminder": {
+            "main": [
+                [
+                    {
+                        "node": "Log Attention Reminder",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Preventive Reminder": {
+            "main": [
+                [
+                    {
+                        "node": "Log Preventive Reminder",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Log Urgent Reminder": {
+            "main": [
+                [
+                    {
+                        "node": "Rate Limit Delay",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Log Attention Reminder": {
+            "main": [
+                [
+                    {
+                        "node": "Rate Limit Delay",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Log Preventive Reminder": {
+            "main": [
+                [
+                    {
+                        "node": "Rate Limit Delay",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get many rows": {
+            "main": [
+                [
+                    {
+                        "node": "If",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If": {
+            "main": [
+                [
+                    {
+                        "node": "Register User in Portal",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Update Account Status to Sold",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "timeSavedMode": "fixed",
+        "callerPolicy": "workflowsFromSameOwner",
+        "executionTimeout": -1,
+        "availableInMCP": true
+    },
+    "versionId": "corrected-v4",
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "1f02a456ce766cfcbe7c7fcea1537ef07065ed505e88dfa615f2e68c5e8c00de"
+    },
+    "id": "7mhMhJYz3auMfV4j",
+    "tags": []
+}

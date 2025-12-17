@@ -5,7 +5,7 @@
 URL Base: `http://seu-servidor:3001/api/webhook/n8n`
 
 ### 1. Registrar Venda
-**POST** `https://makemoneyer.app.n8n.cloud/webhook/new-sale`
+**POST** `https://makemoneyer2.app.n8n.cloud/webhook/new-sale`
 
 Quando um cliente pagar, o gateway de pagamento deve chamar este endpoint para registrar a venda automaticamente.
 
@@ -26,7 +26,7 @@ Quando um cliente pagar, o gateway de pagamento deve chamar este endpoint para r
 Para o sistema notificar o n8n quando eventos ocorrerem, configure a variável de ambiente:
 
 ```
-N8N_WEBHOOK_URL=https://makemoneyer.app.n8n.cloud/webhook/new-sale
+N8N_WEBHOOK_URL=https://makemoneyer2.app.n8n.cloud/webhook/new-sale
 ```
 
 O sistema enviará POSTs com a estrutura:
