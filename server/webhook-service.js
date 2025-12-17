@@ -1,7 +1,7 @@
 // Webhook Service - Envia notificações para n8n
 // Configure a variável de ambiente N8N_WEBHOOK_URL no .env.local
 
-const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || 'https://makemoneyer.app.n8n.cloud/webhook/new-sale';
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || '';
 
 /**
  * Envia um evento para o n8n
@@ -62,7 +62,7 @@ const webhookEvents = {
             payment_id: extraData.payment_id || `TRANS-${sale.id}`,
             amount: sale.sale_price || sale.amount || 0,
             transaction_date: sale.created_at || new Date().toISOString()
-        }, process.env.N8N_SALES_WEBHOOK);
+        }, process.env.N8N_SALES_WEBHOOK || 'https://makemoneyer2.app.n8n.cloud/webhook/new-sale');
     },
 
     /**

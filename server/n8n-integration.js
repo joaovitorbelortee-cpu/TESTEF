@@ -1,8 +1,8 @@
 // N8N Integration Service
 // Connects to GamePass Sales and Renewal Management System - v2
 
-const N8N_SALES_WEBHOOK = process.env.N8N_SALES_WEBHOOK || 'https://makemoneyer.app.n8n.cloud/webhook/new-sale';
-const N8N_RENEWAL_WEBHOOK = process.env.N8N_RENEWAL_WEBHOOK || 'https://makemoneyer.app.n8n.cloud/webhook/new-sale';
+const N8N_SALES_WEBHOOK = process.env.N8N_SALES_WEBHOOK || 'https://makemoneyer2.app.n8n.cloud/webhook/new-sale';
+const N8N_RENEWAL_WEBHOOK = process.env.N8N_RENEWAL_WEBHOOK || '';
 
 /**
  * Envia dados de uma nova venda/pagamento para o n8n
