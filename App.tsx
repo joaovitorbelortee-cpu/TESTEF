@@ -432,10 +432,36 @@ function AdminApp() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [alertCount, setAlertCount] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('admin_auth') === 'true';
+  });
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('theme');
     return (saved === 'light') ? 'light' : 'dark';
   });
+
+  // Credenciais de acesso
+  const ADMIN_EMAIL = 'jvcompany23@gmail.com';
+  const ADMIN_PASSWORD = 'joaovitor12';
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginEmail === ADMIN_EMAIL && loginPassword === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      localStorage.setItem('admin_auth', 'true');
+      setLoginError('');
+    } else {
+      setLoginError('Email ou senha incorretos');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('admin_auth');
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -456,8 +482,10 @@ function AdminApp() {
       }
     };
 
-    checkAlerts();
-  }, [activeTab]);
+    if (isAuthenticated) {
+      checkAlerts();
+    }
+  }, [activeTab, isAuthenticated]);
 
   const navItems = [
     { id: 'dashboard' as TabType, label: 'Dashboard', icon: LayoutDashboard },
@@ -488,6 +516,464 @@ function AdminApp() {
         return <Dashboard onNavigate={setActiveTab} />;
     }
   };
+
+  // Tela de Login Premium
+  if (!isAuthenticated) {
+    return (
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+          
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          
+          .login-universe {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 50% 0%, #0a1a0a 0%, #000000 50%, #000000 100%);
+            overflow: hidden;
+            position: relative;
+            font-family: 'Rajdhani', sans-serif;
+          }
+          
+          /* Animated Grid Background */
+          .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+              linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridPulse 4s ease-in-out infinite;
+          }
+          
+          @keyframes gridPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+          }
+          
+          /* Floating Orbs */
+          .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            animation: floatOrb 20s infinite;
+          }
+          
+          .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(57, 255, 20, 0.15) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+          }
+          
+          .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16, 124, 16, 0.2) 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -5s;
+          }
+          
+          .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(57, 255, 20, 0.1) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+          }
+          
+          @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
+          }
+          
+          /* Particles */
+          .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+          }
+          
+          .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #39ff14;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 8s infinite;
+          }
+          
+          .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+          .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+          .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+          .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+          .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+          .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+          .particle:nth-child(7) { left: 70%; animation-delay: 6s; }
+          .particle:nth-child(8) { left: 80%; animation-delay: 7s; }
+          .particle:nth-child(9) { left: 90%; animation-delay: 0.5s; }
+          .particle:nth-child(10) { left: 15%; animation-delay: 1.5s; }
+          .particle:nth-child(11) { left: 25%; animation-delay: 2.5s; }
+          .particle:nth-child(12) { left: 35%; animation-delay: 3.5s; }
+          .particle:nth-child(13) { left: 45%; animation-delay: 4.5s; }
+          .particle:nth-child(14) { left: 55%; animation-delay: 5.5s; }
+          .particle:nth-child(15) { left: 65%; animation-delay: 6.5s; }
+          .particle:nth-child(16) { left: 75%; animation-delay: 7.5s; }
+          .particle:nth-child(17) { left: 85%; animation-delay: 0.2s; }
+          .particle:nth-child(18) { left: 95%; animation-delay: 1.2s; }
+          .particle:nth-child(19) { left: 5%; animation-delay: 2.2s; }
+          .particle:nth-child(20) { left: 48%; animation-delay: 3.2s; }
+          
+          @keyframes particleFloat {
+            0% { bottom: -10px; opacity: 0; transform: scale(0); }
+            10% { opacity: 1; transform: scale(1); }
+            90% { opacity: 1; transform: scale(1); }
+            100% { bottom: 100vh; opacity: 0; transform: scale(0); }
+          }
+          
+          /* Login Card */
+          .login-card-premium {
+            position: relative;
+            background: rgba(10, 10, 10, 0.85);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 30px;
+            padding: 60px 50px;
+            width: 100%;
+            max-width: 480px;
+            backdrop-filter: blur(30px);
+            box-shadow: 
+              0 0 60px rgba(57, 255, 20, 0.1),
+              0 25px 50px -12px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: cardEntry 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            z-index: 10;
+          }
+          
+          @keyframes cardEntry {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          
+          .login-card-premium::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(57, 255, 20, 0.3), transparent);
+            border-radius: 32px;
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+          }
+          
+          @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          
+          /* Logo Section */
+          .login-logo-premium {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: logoEntry 1s 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          
+          @keyframes logoEntry {
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          .login-logo-premium .brand {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(57, 255, 20, 0.7);
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+          }
+          
+          .login-logo-premium .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 
+              0 0 20px rgba(57, 255, 20, 0.5),
+              0 0 40px rgba(57, 255, 20, 0.3),
+              0 0 60px rgba(57, 255, 20, 0.1);
+            animation: titleGlow 2s ease-in-out infinite;
+          }
+          
+          .login-logo-premium .title span {
+            color: #39ff14;
+            text-shadow: 
+              0 0 10px #39ff14,
+              0 0 20px #39ff14,
+              0 0 30px #39ff14,
+              0 0 40px #39ff14;
+          }
+          
+          @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+          }
+          
+          .login-logo-premium .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-top: 8px;
+            letter-spacing: 2px;
+          }
+          
+          /* Form */
+          .login-form-premium {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+          }
+          
+          .input-group {
+            position: relative;
+            animation: inputEntry 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          
+          .input-group:nth-child(1) { animation-delay: 0.5s; }
+          .input-group:nth-child(2) { animation-delay: 0.6s; }
+          .input-group:nth-child(3) { animation-delay: 0.7s; }
+          
+          @keyframes inputEntry {
+            to { opacity: 1; transform: translateX(0); }
+          }
+          
+          .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(57, 255, 20, 0.5);
+            font-size: 18px;
+            transition: color 0.3s;
+          }
+          
+          .login-input-premium {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(57, 255, 20, 0.15);
+            border-radius: 16px;
+            padding: 20px 20px 20px 55px;
+            font-size: 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .login-input-premium::placeholder {
+            color: #555;
+            font-weight: 400;
+          }
+          
+          .login-input-premium:focus {
+            border-color: #39ff14;
+            box-shadow: 
+              0 0 0 4px rgba(57, 255, 20, 0.1),
+              0 0 20px rgba(57, 255, 20, 0.2);
+            background: rgba(0, 0, 0, 0.8);
+          }
+          
+          .input-group:focus-within .input-icon {
+            color: #39ff14;
+          }
+          
+          /* Button */
+          .login-btn-premium {
+            position: relative;
+            background: linear-gradient(135deg, #39ff14 0%, #20c20e 50%, #107c10 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 22px;
+            font-size: 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: #000;
+            cursor: pointer;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: btnEntry 0.8s 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          
+          @keyframes btnEntry {
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          .login-btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+          }
+          
+          .login-btn-premium:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+              0 10px 40px rgba(57, 255, 20, 0.4),
+              0 0 60px rgba(57, 255, 20, 0.2);
+          }
+          
+          .login-btn-premium:hover::before {
+            left: 100%;
+          }
+          
+          .login-btn-premium:active {
+            transform: translateY(0);
+          }
+          
+          /* Error */
+          .login-error-premium {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ff6b6b;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            animation: errorShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+          }
+          
+          @keyframes errorShake {
+            10%, 90% { transform: translateX(-1px); }
+            20%, 80% { transform: translateX(2px); }
+            30%, 50%, 70% { transform: translateX(-4px); }
+            40%, 60% { transform: translateX(4px); }
+          }
+          
+          /* Footer */
+          .login-footer {
+            margin-top: 40px;
+            text-align: center;
+            animation: footerEntry 1s 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+          }
+          
+          @keyframes footerEntry {
+            to { opacity: 1; }
+          }
+          
+          .login-footer p {
+            color: #444;
+            font-size: 12px;
+            letter-spacing: 1px;
+          }
+          
+          .login-footer .secure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(57, 255, 20, 0.05);
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            border-radius: 20px;
+            color: rgba(57, 255, 20, 0.7);
+            font-size: 11px;
+            letter-spacing: 2px;
+          }
+          
+          .secure-badge::before {
+            content: '🔒';
+          }
+        `}</style>
+        <div className="login-universe">
+          <div className="grid-bg"></div>
+          <div className="orb orb-1"></div>
+          <div className="orb orb-2"></div>
+          <div className="orb orb-3"></div>
+          <div className="particles">
+            {[...Array(20)].map((_, i) => <div key={i} className="particle"></div>)}
+          </div>
+
+          <div className="login-card-premium">
+            <div className="login-logo-premium">
+              <div className="brand">ASSINALIVEBR</div>
+              <div className="title">Game<span>Pass</span></div>
+              <div className="subtitle">Management System</div>
+            </div>
+
+            <form className="login-form-premium" onSubmit={handleLogin}>
+              {loginError && <div className="login-error-premium">{loginError}</div>}
+
+              <div className="input-group">
+                <span className="input-icon">✉</span>
+                <input
+                  type="email"
+                  className="login-input-premium"
+                  placeholder="Email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <span className="input-icon">🔐</span>
+                <input
+                  type="password"
+                  className="login-input-premium"
+                  placeholder="Senha"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="login-btn-premium">
+                Acessar Sistema
+              </button>
+            </form>
+
+            <div className="login-footer">
+              <p>Acesso restrito a administradores</p>
+              <div className="secure-badge">CONEXÃO SEGURA</div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -559,7 +1045,7 @@ function AdminApp() {
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
             </button>
-            <button className="logout-btn">
+            <button className="logout-btn" onClick={handleLogout}>
               <LogOut size={20} />
               Sair
             </button>

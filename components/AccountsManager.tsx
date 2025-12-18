@@ -687,11 +687,16 @@ export default function AccountsManager() {
 
   const resetForm = () => {
     setEditingAccount(null);
+    // Calcular data de validade padrão: hoje + 30 dias
+    const today = new Date();
+    const expiryDate = new Date(today);
+    expiryDate.setDate(today.getDate() + 30);
+
     setFormData({
       email: '',
       password: '',
-      purchase_date: new Date().toISOString().split('T')[0],
-      expiry_date: '',
+      purchase_date: today.toISOString().split('T')[0],
+      expiry_date: expiryDate.toISOString().split('T')[0],
       cost: '35',
       notes: ''
     });
