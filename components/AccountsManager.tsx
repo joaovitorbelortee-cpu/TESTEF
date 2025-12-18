@@ -17,10 +17,18 @@ import { supabase } from '../lib/supabaseClient';
 import type { Account } from '../types';
 
 const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
   .manager {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 28px;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   
   .manager-header {
@@ -28,25 +36,57 @@ const styles = `
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 20px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+    position: relative;
+  }
+
+  .manager-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--neon-green, #39ff14), transparent);
+    border-radius: 2px;
   }
   
   .manager-title {
-    font-size: 28px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 32px;
     font-weight: 700;
     color: #fff;
-    letter-spacing: -0.5px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 30px rgba(57, 255, 20, 0.2);
+    position: relative;
+  }
+
+  .manager-title::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 70%;
+    background: linear-gradient(180deg, var(--neon-green, #39ff14), transparent);
+    border-radius: 4px;
+    box-shadow: 0 0 15px var(--neon-green, #39ff14);
   }
   
   .manager-subtitle {
-    color: #6a6a7a;
-    font-size: 14px;
-    margin-top: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    color: #7a7a8a;
+    font-size: 15px;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
   }
   
   .header-actions {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     align-items: center;
     flex-wrap: wrap;
   }
@@ -54,122 +94,174 @@ const styles = `
   .search-box {
     display: flex;
     align-items: center;
-    background: rgba(22, 22, 31, 0.8);
-    border: 1px solid rgba(42, 42, 58, 0.5);
-    border-radius: 10px;
-    padding: 0 14px;
-    gap: 10px;
-    min-width: 250px;
+    background: linear-gradient(135deg, rgba(15, 15, 20, 0.9) 0%, rgba(10, 10, 15, 0.95) 100%);
+    border: 1px solid rgba(57, 255, 20, 0.15);
+    border-radius: 14px;
+    padding: 0 18px;
+    gap: 12px;
+    min-width: 280px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .search-box:focus-within {
+    border-color: rgba(57, 255, 20, 0.4);
+    box-shadow: 
+      0 4px 20px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(57, 255, 20, 0.1);
   }
   
   .search-input {
     background: transparent;
     border: none;
     color: #fff;
-    padding: 12px 0;
-    font-size: 14px;
+    padding: 14px 0;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
     flex: 1;
     outline: none;
+    letter-spacing: 0.3px;
   }
   
   .search-input::placeholder {
-    color: #6a6a7a;
+    color: #5a5a6a;
   }
   
   .btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.4s;
+  }
+
+  .btn:hover::before {
+    left: 100%;
   }
   
   .btn-primary {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: #fff;
+    background: linear-gradient(135deg, #39ff14 0%, #20c20e 50%, #107c10 100%);
+    color: #000;
+    box-shadow: 0 4px 20px rgba(57, 255, 20, 0.25);
   }
   
   .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(57, 255, 20, 0.4);
   }
   
   .btn-secondary {
-    background: rgba(42, 42, 58, 0.5);
+    background: linear-gradient(135deg, rgba(30, 30, 40, 0.9) 0%, rgba(20, 20, 28, 0.95) 100%);
     color: #a0a0b0;
-    border: 1px solid rgba(42, 42, 58, 0.8);
+    border: 1px solid rgba(57, 255, 20, 0.15);
   }
   
   .btn-secondary:hover {
-    background: rgba(42, 42, 58, 0.8);
+    background: linear-gradient(135deg, rgba(40, 40, 55, 0.9) 0%, rgba(30, 30, 40, 0.95) 100%);
     color: #fff;
+    border-color: rgba(57, 255, 20, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
   
   .btn-danger {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.15) 100%);
+    color: #ff6b6b;
     border: 1px solid rgba(239, 68, 68, 0.3);
   }
   
   .btn-danger:hover {
-    background: rgba(239, 68, 68, 0.25);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.25) 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);
+    transform: translateY(-1px);
   }
   
   .tabs {
     display: flex;
-    gap: 4px;
-    background: rgba(22, 22, 31, 0.8);
-    border: 1px solid rgba(42, 42, 58, 0.5);
-    border-radius: 12px;
-    padding: 4px;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(12, 12, 18, 0.95) 0%, rgba(8, 8, 12, 0.98) 100%);
+    border: 1px solid rgba(57, 255, 20, 0.1);
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 
+      0 4px 30px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
   
   .tab {
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-family: 'Rajdhani', sans-serif;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
-    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
     background: transparent;
     color: #6a6a7a;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    letter-spacing: 0.5px;
   }
   
   .tab:hover {
     color: #a0a0b0;
+    background: rgba(57, 255, 20, 0.03);
   }
   
   .tab.active {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
-    color: #10b981;
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.12) 0%, rgba(16, 124, 16, 0.08) 100%);
+    color: #39ff14;
+    border-color: rgba(57, 255, 20, 0.25);
+    box-shadow: 
+      0 0 20px rgba(57, 255, 20, 0.1),
+      inset 0 0 15px rgba(57, 255, 20, 0.05);
   }
   
   .tab-count {
-    background: rgba(42, 42, 58, 0.8);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 12px;
+    background: rgba(57, 255, 20, 0.1);
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
   }
   
   .tab.active .tab-count {
-    background: rgba(16, 185, 129, 0.3);
+    background: rgba(57, 255, 20, 0.25);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
   }
   
   .table-container {
-    background: rgba(22, 22, 31, 0.8);
-    border: 1px solid rgba(42, 42, 58, 0.5);
-    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(12, 12, 18, 0.95) 0%, rgba(8, 8, 12, 0.98) 100%);
+    border: 1px solid rgba(57, 255, 20, 0.1);
+    border-radius: 20px;
     overflow: hidden;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(20px);
+    box-shadow: 
+      0 10px 40px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
   
   .table {
@@ -179,64 +271,81 @@ const styles = `
   
   .table th {
     text-align: left;
-    padding: 16px 20px;
-    font-size: 11px;
+    padding: 18px 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
     font-weight: 600;
-    color: #6a6a7a;
+    color: #5a5a6a;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid rgba(42, 42, 58, 0.5);
-    background: rgba(10, 10, 15, 0.5);
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+    background: linear-gradient(180deg, rgba(5, 5, 8, 0.8) 0%, rgba(8, 8, 12, 0.5) 100%);
   }
   
   .table td {
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(42, 42, 58, 0.3);
-    font-size: 14px;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(57, 255, 20, 0.05);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
     color: #a0a0b0;
+    letter-spacing: 0.3px;
   }
   
   .table tr:last-child td {
     border-bottom: none;
   }
   
+  .table tr {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
   .table tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: linear-gradient(90deg, rgba(57, 255, 20, 0.03) 0%, transparent 50%);
   }
   
   .status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+    text-transform: uppercase;
   }
   
   .status-available {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.15) 0%, rgba(16, 124, 16, 0.1) 100%);
+    color: #39ff14;
+    border-color: rgba(57, 255, 20, 0.25);
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.1);
   }
   
   .status-sold {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.25);
   }
   
   .status-expiring {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%);
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.25);
   }
   
   .status-expired {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.25);
   }
   
   .status-pending_renewal {
-    background: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+    color: #c084fc;
+    border-color: rgba(168, 85, 247, 0.25);
   }
   
   .actions-cell {
@@ -461,6 +570,220 @@ const styles = `
       width: 100%;
     }
   }
+
+  /* Painel de Importação em Lote */
+  .bulk-toggle-btn {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: #fff;
+  }
+  
+  .bulk-toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  }
+
+  .bulk-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 400px;
+    background: rgba(15, 15, 22, 0.98);
+    border-left: 1px solid rgba(139, 92, 246, 0.3);
+    backdrop-filter: blur(20px);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .bulk-panel.open {
+    transform: translateX(0);
+  }
+
+  .bulk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+  }
+
+  .bulk-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bulk-title::before {
+    content: '⚡';
+  }
+
+  .bulk-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #a0a0b0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .bulk-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  .bulk-content {
+    flex: 1;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+
+  .bulk-description {
+    color: #8a8a9a;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 12px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+  }
+
+  .bulk-description code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #a78bfa;
+    font-family: monospace;
+  }
+
+  .bulk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bulk-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #a0a0b0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .bulk-input {
+    background: rgba(22, 22, 31, 0.8);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .bulk-input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  }
+
+  .bulk-textarea {
+    min-height: 300px;
+    resize: vertical;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .bulk-actions {
+    padding: 20px 24px;
+    border-top: 1px solid rgba(139, 92, 246, 0.2);
+    display: flex;
+    gap: 12px;
+  }
+
+  .bulk-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .bulk-btn-import {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+  }
+
+  .bulk-btn-import:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+
+  .bulk-btn-import:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .bulk-result {
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .bulk-result-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+  }
+
+  .bulk-result-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+  }
+
+  .bulk-errors {
+    margin-top: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 12px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+  }
+
+  .bulk-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
 `;
 
 const statusLabels: Record<string, string> = {
@@ -491,6 +814,14 @@ export default function AccountsManager() {
     cost: '35',
     notes: ''
   });
+
+  // Estados para importação em lote
+  const [showBulkPanel, setShowBulkPanel] = useState(false);
+  const [bulkInput, setBulkInput] = useState('');
+  const [bulkDays, setBulkDays] = useState('30');
+  const [bulkCost, setBulkCost] = useState('35');
+  const [bulkImporting, setBulkImporting] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{ success: number; errors: string[] } | null>(null);
 
   useEffect(() => {
     loadAccounts();
@@ -687,10 +1018,10 @@ export default function AccountsManager() {
 
   const resetForm = () => {
     setEditingAccount(null);
-    // Calcular data de validade padrão: hoje + 30 dias
+    // Calcular data de validade padrão: mesmo dia do próximo mês
     const today = new Date();
     const expiryDate = new Date(today);
-    expiryDate.setDate(today.getDate() + 30);
+    expiryDate.setMonth(today.getMonth() + 1); // Mesmo dia, próximo mês
 
     setFormData({
       email: '',
@@ -716,6 +1047,77 @@ export default function AccountsManager() {
     const cleanPhone = phone.replace(/\D/g, '');
     const message = encodeURIComponent(`Olá ${name}! 😊`);
     window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
+  };
+
+  // Função de importação em lote
+  const handleBulkImport = async () => {
+    if (!supabase) {
+      alert('Supabase não configurado');
+      return;
+    }
+
+    const lines = bulkInput.split('\n').filter(line => line.trim());
+    if (lines.length === 0) {
+      alert('Cole as contas no formato: email senha (uma por linha, separados por espaço)');
+      return;
+    }
+
+    setBulkImporting(true);
+    setBulkResult(null);
+
+    const today = new Date();
+    const expiryDate = new Date(today);
+    expiryDate.setDate(today.getDate() + parseInt(bulkDays));
+
+    let successCount = 0;
+    const errors: string[] = [];
+
+    for (const line of lines) {
+      // Separar por espaço, :, / ou | - pega o primeiro como email, o resto como senha
+      const parts = line.trim().split(/[\s:\/|]+/);
+      if (parts.length >= 2) {
+        const email = parts[0].trim();
+        const password = parts.slice(1).join(' ').trim(); // Suporta senhas com espaço
+
+        if (email && password) {
+          try {
+            const { error } = await supabase
+              .from('accounts')
+              .insert([{
+                email,
+                password,
+                purchase_date: today.toISOString().split('T')[0],
+                expiry_date: expiryDate.toISOString().split('T')[0],
+                cost: parseFloat(bulkCost) || 35,
+                status: 'available',
+                notes: 'Importado em lote'
+              }]);
+
+            if (error) {
+              errors.push(`${email}: ${error.message}`);
+            } else {
+              successCount++;
+            }
+          } catch (err: any) {
+            errors.push(`${email}: ${err.message}`);
+          }
+        } else {
+          errors.push(`Linha inválida: ${line}`);
+        }
+      } else {
+        errors.push(`Formato inválido: ${line}`);
+      }
+    }
+
+    setBulkImporting(false);
+    setBulkResult({ success: successCount, errors });
+
+    if (successCount > 0) {
+      loadAccounts();
+      if (errors.length === 0) {
+        setBulkInput('');
+      }
+    }
   };
 
   // Contadores
@@ -790,6 +1192,9 @@ export default function AccountsManager() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+            <button className="btn bulk-toggle-btn" onClick={() => setShowBulkPanel(true)}>
+              ⚡ Importar Lote
+            </button>
             <button className="btn btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>
               <Plus size={18} />
               Nova Conta
@@ -1063,6 +1468,88 @@ export default function AccountsManager() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Painel de Importação em Lote */}
+      {showBulkPanel && <div className="bulk-overlay" onClick={() => setShowBulkPanel(false)} />}
+      <div className={`bulk-panel ${showBulkPanel ? 'open' : ''}`}>
+        <div className="bulk-header">
+          <h3 className="bulk-title">Importação em Lote</h3>
+          <button className="bulk-close" onClick={() => setShowBulkPanel(false)}>
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="bulk-content">
+          <div className="bulk-description">
+            Cole as contas no formato <code>email senha</code> (uma por linha).
+            Separadores aceitos: espaço, : / ou |
+          </div>
+
+          <div className="bulk-field">
+            <label className="bulk-label">Validade (dias a partir de hoje)</label>
+            <input
+              type="number"
+              className="bulk-input"
+              value={bulkDays}
+              onChange={(e) => setBulkDays(e.target.value)}
+              min="1"
+              max="365"
+              placeholder="30"
+            />
+          </div>
+
+          <div className="bulk-field">
+            <label className="bulk-label">Valor das contas (R$)</label>
+            <input
+              type="number"
+              className="bulk-input"
+              value={bulkCost}
+              onChange={(e) => setBulkCost(e.target.value)}
+              min="0"
+              step="0.01"
+              placeholder="35.00"
+            />
+          </div>
+
+          <div className="bulk-field" style={{ flex: 1 }}>
+            <label className="bulk-label">Contas (email senha)</label>
+            <textarea
+              className="bulk-input bulk-textarea"
+              value={bulkInput}
+              onChange={(e) => setBulkInput(e.target.value)}
+              placeholder={`exemplo1@email.com senha123
+exemplo2@email.com senha456
+exemplo3@email.com senha789`}
+            />
+          </div>
+
+          {bulkResult && (
+            <div className={`bulk-result ${bulkResult.errors.length > 0 ? 'bulk-result-error' : 'bulk-result-success'}`}>
+              ✅ {bulkResult.success} conta(s) importada(s) com sucesso!
+              {bulkResult.errors.length > 0 && (
+                <>
+                  <br />❌ {bulkResult.errors.length} erro(s):
+                  <div className="bulk-errors">
+                    {bulkResult.errors.map((err, i) => (
+                      <div key={i}>{err}</div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="bulk-actions">
+          <button
+            className="bulk-btn bulk-btn-import"
+            onClick={handleBulkImport}
+            disabled={bulkImporting || !bulkInput.trim()}
+          >
+            {bulkImporting ? '⏳ Importando...' : '🚀 Importar Contas'}
+          </button>
+        </div>
       </div>
     </>
   );
