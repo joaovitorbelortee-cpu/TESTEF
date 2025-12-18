@@ -1417,7 +1417,13 @@
     "connections": {
         "New Sale Webhook": {
             "main": [
-                []
+                [
+                    {
+                        "node": "Normalize and Configure",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
             ]
         },
         "Normalize and Configure": {
