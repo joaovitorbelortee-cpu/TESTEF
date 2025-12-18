@@ -1,5 +1,5 @@
 {
-    "name": "GamePass Sales and Renewal Management System - v4 CORRECTED",
+    "name": "GamePass Sales and Renewal Management System - v5 FINAL",
     "nodes": [
         {
             "parameters": {
@@ -768,7 +768,7 @@
                         {
                             "id": "config-1",
                             "name": "apiBaseUrl",
-                            "value": "={{ $env.API_BASE_URL || 'https://api.seudominio.com.br' }}",
+                            "value": "=https://cpzxslaufhomqxksyrwt.supabase.co",
                             "type": "string"
                         },
                         {
@@ -1375,11 +1375,10 @@
                         {
                             "id": "3e4ca927-2ba6-4169-96cc-0a8b432e48c4",
                             "leftValue": "={{ $if( $(\"Get many rows\").isExecuted, $(\"Get many rows\").all().length, 1) }}",
-                            "rightValue": "0",
+                            "rightValue": 0,
                             "operator": {
-                                "type": "string",
-                                "operation": "equals",
-                                "name": "filter.operator.equals"
+                                "type": "number",
+                                "operation": "equals"
                             }
                         }
                     ],
@@ -1867,7 +1866,7 @@
         "executionTimeout": -1,
         "availableInMCP": true
     },
-    "versionId": "corrected-v4",
+    "versionId": "final-v5",
     "meta": {
         "templateCredsSetupCompleted": true,
         "instanceId": "1f02a456ce766cfcbe7c7fcea1537ef07065ed505e88dfa615f2e68c5e8c00de"

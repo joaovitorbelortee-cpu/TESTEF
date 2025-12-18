@@ -53,16 +53,46 @@ const webhookEvents = {
      * Chamado quando uma conta é vendida
      */
     async accountSold(account, client, sale, extraData = {}) {
-        return sendWebhook('account_sold', {
+        // Envia dados FLAT diretamente (não aninhado)
+        const webhookUrl = process.env.N8N_SALES_WEBHOOK || 'https://makemoneyer2.app.n8n.cloud/webhook/new-sale';
+
+        const payload = {
+            email: client.email,
+            name: client.name,
+            whatsapp: client.whatsapp || client.phone || '',
+            // Campos legados/extras para compatibilidade ou uso futuro
             client_name: client.name,
             client_email: client.email,
-            client_phone: client.whatsapp,
             plan_type: 'monthly',
             payment_method: extraData.payment_method || 'pix',
             payment_id: extraData.payment_id || `TRANS-${sale.id}`,
             amount: sale.sale_price || sale.amount || 0,
             transaction_date: sale.created_at || new Date().toISOString()
-        }, process.env.N8N_SALES_WEBHOOK || 'https://makemoneyer2.app.n8n.cloud/webhook/new-sale');
+        };
+
+        console.log(`📤 Enviando webhook FLAT para n8n: ${webhookUrl}`);
+        console.log(`📦 Payload:`, JSON.stringify(payload, null, 2));
+
+        try {
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                console.log(`✅ Webhook enviado com sucesso!`);
+                return await response.json().catch(() => ({ success: true }));
+            } else {
+                console.error(`❌ Erro ao enviar webhook: ${response.status}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`❌ Erro ao enviar webhook:`, error.message);
+            return null;
+        }
     },
 
     /**

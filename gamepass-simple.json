@@ -1,0 +1,234 @@
+{
+    "name": "FINAL v39 - WHATSAPP RPC",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "new-sale",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "wh",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2.1,
+            "position": [
+                -900,
+                300
+            ],
+            "webhookId": "1b5a041f-0bd0-48c8-a942-fbce9aa593f9"
+        },
+        {
+            "parameters": {
+                "mode": "manual",
+                "duplicateItem": false,
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "email",
+                            "name": "email",
+                            "type": "string",
+                            "value": "={{ $json.body?.email || $json.email || '' }}"
+                        },
+                        {
+                            "id": "name",
+                            "name": "name",
+                            "type": "string",
+                            "value": "={{ $json.body?.name || $json.name || 'Cliente' }}"
+                        },
+                        {
+                            "id": "whatsapp",
+                            "name": "whatsapp",
+                            "type": "string",
+                            "value": "={{ $json.body?.whatsapp || $json.body?.phone || $json.body?.celular || $json.whatsapp || '' }}"
+                        },
+                        {
+                            "id": "expiry",
+                            "name": "expiry_date",
+                            "type": "string",
+                            "value": "={{ $now.plus(30, 'days').format('yyyy-MM-dd') }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "set",
+            "name": "Set Dados",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                -700,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "function",
+                "operation": "invoke",
+                "functionName": "upsert_client_v3",
+                "parametersUi": {
+                    "parameterValues": [
+                        {
+                            "name": "p_email",
+                            "value": "={{ $json.email }}"
+                        },
+                        {
+                            "name": "p_name",
+                            "value": "={{ $json.name }}"
+                        },
+                        {
+                            "name": "p_whatsapp",
+                            "value": "={{ $json.whatsapp }}"
+                        },
+                        {
+                            "name": "p_expiry",
+                            "value": "={{ $json.expiry_date }}"
+                        }
+                    ]
+                }
+            },
+            "id": "rpc",
+            "name": "Chamar RPC",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                -450,
+                300
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "9oM5dtw72X66DZXZ",
+                    "name": "Supabase account"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "7632",
+                            "leftValue": "={{ $json.error }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "exists"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "check_err",
+            "name": "Deu Erro?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                -200,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { success: true, action: 'processed_via_rpc_v3', data: $json } }}",
+                "options": {}
+            },
+            "id": "resp_ok",
+            "name": "Resposta OK",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                100,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { success: false, error: $json.error, details: $json } }}",
+                "options": {
+                    "responseCode": 500
+                }
+            },
+            "id": "resp_err",
+            "name": "Resposta ERRO",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                100,
+                400
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Set Dados",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Dados": {
+            "main": [
+                [
+                    {
+                        "node": "Chamar RPC",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Chamar RPC": {
+            "main": [
+                [
+                    {
+                        "node": "Deu Erro?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Deu Erro?": {
+            "main": [
+                [
+                    {
+                        "node": "Resposta ERRO",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Resposta OK",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "versionId": "v39-whatsapp-rpc",
+    "meta": {
+        "templateCredsSetupCompleted": true
+    },
+    "id": "v39",
+    "tags": []
+}
