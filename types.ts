@@ -1,7 +1,7 @@
 // Tipos do Sistema GamePass Manager
 
 export interface Account {
-  id: number;
+  id: string;
   email: string;
   password: string;
   purchase_date: string;
@@ -21,7 +21,7 @@ export interface Account {
 }
 
 export interface Client {
-  id: number;
+  id: string;
   name: string;
   email?: string;
   whatsapp: string;

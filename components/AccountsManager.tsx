@@ -480,8 +480,8 @@ export default function AccountsManager() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [showModal, setShowModal] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-  const [showPasswords, setShowPasswords] = useState<Record<number, boolean>>({});
-  const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -619,7 +619,7 @@ export default function AccountsManager() {
     }
   };
 
-  const handleDelete = async (id: number, account: Account) => {
+  const handleDelete = async (id: string, account: Account) => {
     if (!supabase) {
       alert('Supabase não configurado');
       return;
@@ -679,7 +679,7 @@ export default function AccountsManager() {
       password: account.password,
       purchase_date: account.purchase_date,
       expiry_date: account.expiry_date,
-      cost: account.cost.toString(),
+      cost: (account.cost ?? 35).toString(),
       notes: account.notes || ''
     });
     setShowModal(true);
@@ -697,11 +697,11 @@ export default function AccountsManager() {
     });
   };
 
-  const togglePassword = (id: number) => {
+  const togglePassword = (id: string) => {
     setShowPasswords(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const copyPassword = async (id: number, password: string) => {
+  const copyPassword = async (id: string, password: string) => {
     await navigator.clipboard.writeText(password);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -741,7 +741,7 @@ export default function AccountsManager() {
     return status === 'sold' || status === 'expiring' || status === 'expired' || status === 'pending_renewal';
   };
 
-  const handleMarkAsSold = async (id: number) => {
+  const handleMarkAsSold = async (id: string) => {
     if (!supabase) {
       alert('Supabase não configurado');
       return;
@@ -910,7 +910,7 @@ export default function AccountsManager() {
                     <td>{formatDate(account.purchase_date)}</td>
                     <td>{formatDate(account.expiry_date)}</td>
                     <td className="font-mono text-white">
-                      R$ {account.cost.toFixed(2)}
+                      R$ {(account.cost ?? 0).toFixed(2)}
                     </td>
                     <td>
                       <span className={`status-badge status-${account.status}`}>

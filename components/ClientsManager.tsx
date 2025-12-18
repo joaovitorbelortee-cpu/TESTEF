@@ -528,7 +528,7 @@ export default function ClientsManager() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir este cliente?')) {
       try {
         await clientsAPI.delete(id);
@@ -560,13 +560,15 @@ export default function ClientsManager() {
     });
   };
 
-  const openWhatsApp = (phone: string, name: string) => {
-    const cleanPhone = phone.replace(/\D/g, '');
-    const message = encodeURIComponent(`Olá ${name}! 😊`);
+  const openWhatsApp = (phone: string | null | undefined, name: string | null | undefined) => {
+    if (!phone) return;
+    const cleanPhone = (phone || '').replace(/\D/g, '');
+    const message = encodeURIComponent(`Olá ${name || 'Cliente'}! 😊`);
     window.open(`https://wa.me/55${cleanPhone}?text=${message}`, '_blank');
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return '??';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
@@ -577,17 +579,18 @@ export default function ClientsManager() {
     }).format(value || 0);
   };
 
-  const formatPhone = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, '');
+  const formatPhone = (phone: string | null | undefined) => {
+    if (!phone) return '';
+    const cleaned = (phone || '').replace(/\D/g, '');
     if (cleaned.length === 11) {
       return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
     }
-    return phone;
+    return phone || '';
   };
 
   const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(search.toLowerCase()) ||
-    client.whatsapp.includes(search)
+    (client.name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (client.whatsapp || '').includes(search)
   );
 
   return (
